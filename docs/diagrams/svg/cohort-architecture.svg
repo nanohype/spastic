@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <style>
+      .bg { fill: #0D1117; }
+      .card { fill: #161B22; stroke: #30363D; stroke-width: 1; rx: 8; }
+      .card-hi { fill: #161B22; stroke: #34D399; stroke-width: 1.5; rx: 8; }
+      .title { fill: #E6EDF3; font-size: 14px; font-weight: 600; }
+      .sub { fill: #8B949E; font-size: 11px; }
+      .heading { fill: #E6EDF3; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+      .dim { fill: #8B949E; font-size: 12px; }
+      .sec { fill: #34D399; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; }
+      .cmd { fill: #484F58; font-size: 10px; }
+      .dot { fill: #34D399; }
+      .stem { stroke: #21262D; stroke-width: 1; }
+      .wf-name { fill: #E6EDF3; font-size: 12px; font-weight: 600; }
+      .wf-seq { fill: #8B949E; font-size: 10px; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="470"/>
+
+  <!-- ─── Heading ─── -->
+  <text class="heading" x="40" y="38">Cohort</text>
+  <text class="dim" x="40" y="58">One coordinator orchestrates eight specialist agents through skills and workflows</text>
+
+  <!-- ─── Coordinator ─── -->
+  <rect class="card-hi" x="400" y="82" width="400" height="50"/>
+  <circle class="dot" cx="420" cy="107" r="5"/>
+  <text class="title" x="434" y="104">Coordinator</text>
+  <text class="sub" x="434" y="120">Routes work, sequences teams, resolves conflicts</text>
+
+  <!-- Stem -->
+  <line class="stem" x1="600" y1="132" x2="600" y2="162"/>
+
+  <!-- ─── Team ─── -->
+  <text class="sec" x="40" y="178">TEAM</text>
+  <text class="dim" x="96" y="178">each loaded with a domain skill</text>
+
+  <!-- Row 1 -->
+  <rect class="card" x="115" y="192" width="220" height="50"/>
+  <circle class="dot" cx="133" cy="217" r="3" opacity="0.5"/>
+  <text class="title" x="144" y="214">Product</text>
+  <text class="sub" x="144" y="230">Requirements, OKRs, launches</text>
+
+  <rect class="card" x="365" y="192" width="220" height="50"/>
+  <circle class="dot" cx="383" cy="217" r="3" opacity="0.5"/>
+  <text class="title" x="394" y="214">Design</text>
+  <text class="sub" x="394" y="230">Design system, brand, tokens</text>
+
+  <rect class="card" x="615" y="192" width="220" height="50"/>
+  <circle class="dot" cx="633" cy="217" r="3" opacity="0.5"/>
+  <text class="title" x="644" y="214">Engineering</text>
+  <text class="sub" x="644" y="230">Architecture, 55 templates</text>
+
+  <rect class="card" x="865" y="192" width="220" height="50"/>
+  <circle class="dot" cx="883" cy="217" r="3" opacity="0.5"/>
+  <text class="title" x="894" y="214">QA</text>
+  <text class="sub" x="894" y="230">Test strategy, release gates</text>
+
+  <!-- Row 2 -->
+  <rect class="card" x="115" y="258" width="220" height="50"/>
+  <circle class="dot" cx="133" cy="283" r="3" opacity="0.5"/>
+  <text class="title" x="144" y="280">Sales</text>
+  <text class="sub" x="144" y="296">Proposals, battle cards</text>
+
+  <rect class="card" x="365" y="258" width="220" height="50"/>
+  <circle class="dot" cx="383" cy="283" r="3" opacity="0.5"/>
+  <text class="title" x="394" y="280">Marketing</text>
+  <text class="sub" x="394" y="296">Campaigns, positioning</text>
+
+  <rect class="card" x="615" y="258" width="220" height="50"/>
+  <circle class="dot" cx="633" cy="283" r="3" opacity="0.5"/>
+  <text class="title" x="644" y="280">Operations</text>
+  <text class="sub" x="644" y="296">Runbooks, incidents</text>
+
+  <rect class="card" x="865" y="258" width="220" height="50"/>
+  <circle class="dot" cx="883" cy="283" r="3" opacity="0.5"/>
+  <text class="title" x="894" y="280">Customer Success</text>
+  <text class="sub" x="894" y="296">Onboarding, QBRs, retention</text>
+
+  <!-- ─── Workflows ─── -->
+  <text class="sec" x="40" y="348">WORKFLOWS</text>
+
+  <text class="wf-name" x="115" y="370">launch-prep</text>
+  <text class="wf-seq" x="115" y="386">Product &#x2192; Design &#x2192; Eng &#x2192; QA &#x2192; Mkt &#x2192; Sales</text>
+
+  <text class="wf-name" x="445" y="370">feature-build</text>
+  <text class="wf-seq" x="445" y="386">Product &#x2192; Design &#x2192; Eng &#x2192; QA</text>
+
+  <text class="wf-name" x="695" y="370">incident</text>
+  <text class="wf-seq" x="695" y="386">Ops &#x2192; Eng &#x2192; QA &#x2192; Postmortem</text>
+
+  <text class="wf-name" x="115" y="410">customer-onboard</text>
+  <text class="wf-seq" x="115" y="426">Sales &#x2192; CS &#x2192; Product</text>
+
+  <text class="wf-name" x="445" y="410">market-push</text>
+  <text class="wf-seq" x="445" y="426">Product &#x2192; Mkt &#x2192; Sales</text>
+
+  <!-- ─── Footer ─── -->
+  <text class="cmd" x="40" y="458">cohort deploy   &#x2192;   cohort chat coordinator   &#x2192;   cohort workflow launch-prep "Ship the v2"</text>
+</svg>
