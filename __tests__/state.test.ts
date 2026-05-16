@@ -39,9 +39,19 @@ describe('state', () => {
       environmentId: 'env_789',
       memory: { enabled: false, path: '/custom/memory.md' },
       journal: { enabled: true, basePath: '/workspace/.spastic/journal' },
-      repos: [{ type: 'github_repository', url: 'https://github.com/test/repo', mount_path: '/workspace/repo' }],
+      repos: [
+        {
+          type: 'github_repository',
+          url: 'https://github.com/test/repo',
+          mount_path: '/workspace/repo',
+          authorization_token: 'ghp_test_token',
+        },
+      ],
       modelOverrides: { engineering: 'claude-opus-4-6' },
       sprint: null,
+      vaultIds: [],
+      budgetLimit: null,
+      projectLanguage: 'typescript',
     };
 
     await saveState(state);
@@ -69,6 +79,9 @@ describe('state', () => {
       repos: [],
       modelOverrides: {},
       sprint: null,
+      vaultIds: [],
+      budgetLimit: null,
+      projectLanguage: 'typescript',
     });
 
     await clearState();
@@ -102,6 +115,9 @@ describe('state', () => {
       repos: [],
       modelOverrides: {},
       sprint: null,
+      vaultIds: [],
+      budgetLimit: null,
+      projectLanguage: 'typescript',
     });
 
     const raw = await readFile(STATE_FILE, 'utf-8');

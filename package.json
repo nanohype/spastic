@@ -24,20 +24,17 @@
     "tsconfig.json"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "npm run build",
-    "lint": "tsc --noEmit && eslint src/",
+    "lint": "npm run typecheck && eslint src/ __tests__/",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
-  },
-  "dependencies": {
-    "npm": "^11.12.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
