@@ -220,6 +220,7 @@ describe('FACTORY_PREAMBLE', () => {
   it('assembles all the sections in order', () => {
     const sections = [
       'IaC',
+      'Platform tenant contract',
       'LLM policy',
       'Production bar',
       'Four-phase contract',

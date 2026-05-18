@@ -194,6 +194,8 @@ describe('buildSystemPrompt', () => {
     const prompt = buildSystemPrompt(engBackend, makeState());
     expect(prompt).toContain('# Factory Production Standards');
     expect(prompt).toContain('IaC by deploy_target');
+    expect(prompt).toContain('Platform tenant contract');
+    expect(prompt).toContain('k8s-native');
     expect(prompt).toContain('LLM policy');
     expect(prompt).toContain('Production bar');
     expect(prompt).toContain('Merge gate');

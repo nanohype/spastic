@@ -235,19 +235,109 @@ Quoting the source: "Assign grades honestly. A is exceptional. B is solid. C is 
 
 export const IAC_BY_TARGET = `## IaC by deploy_target
 
-Match the infrastructure tooling to the deploy target in the intake brief. IaC language SHOULD match the project's primary \`constraints.language\` when the tool supports it — keeping one language across app and infra lowers cognitive load.
+The factory ships k8s-native by default. Every app lands as a Platform tenant unless an explicit escape hatch is justified in the architecture artifact.
 
-| deploy_target | IaC tool                         | IaC language options                             | Notes                                                               |
-| ------------- | -------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
-| aws           | AWS CDK                          | TypeScript (default), Python, Go, Java, C#       | One stack per environment. VPC endpoints for Bedrock + Secrets Mgr. |
-| gcp           | Pulumi                           | TypeScript, Python, Go, C#                       | Use GCP provider; avoid raw gcloud scripts.                         |
-| k8s           | Helm + Kustomize overlays        | YAML (universal)                                 | One chart per service; overlays per environment.                    |
-| fly           | fly.toml + Fly Machines API      | TOML (universal)                                 | Declarative config; use \`flyctl\` for rollouts.                    |
-| vercel        | vercel.json + project config     | JSON (universal)                                 | Env vars via Vercel dashboard / CLI; no custom IaC.                 |
-| cloudflare    | Wrangler + Workers config        | TOML (universal)                                 | wrangler.toml for each worker; KV/D1/R2 declared inline.            |
-| serverless    | AWS SAM or Serverless Framework  | YAML (universal)                                 | Prefer CDK unless the brief specifies SAM/Serverless.               |
+**Default path (deploy_target: k8s)** — Helm chart + ApplicationSet entry + Platform CR. See PLATFORM_TENANT_CONTRACT for the shape contract.
 
-Never introduce a second IaC tool without written justification in the architecture artifact. Terraform is NOT the default on AWS — use CDK unless the brief explicitly names Terraform.`;
+- Application chart in \`<app>/chart/\` (Helm, with per-env values files)
+- ApplicationSet entry registered with \`nanohype/eks-gitops\` (EKS) or \`nanohype/aks-gitops\` (AKS)
+- \`Platform\` CR (\`agents.stxkxs.io/v1alpha1\`) declaring the tenant boundary; the eks-agent-platform operator reconciles Namespace, ResourceQuota, NetworkPolicy, IRSA, S3 + KMS grants
+- Optional \`AgentFleet\` CR (AI workloads) composing kagent + KEDA
+
+**Cloud substrate** (shared, slow-moving) — OpenTofu/Terragrunt against \`nanohype/landing-zone\`. VPC, base IAM, KMS keys, cost pipeline, EventBridge buses, Bedrock guardrail templates, WAF. Per-app substrate gaps land as new \`landing-zone\` components, NOT in-app tofu.
+
+**Cluster addons** (shared, slow-moving) — \`nanohype/eks-gitops\` / \`nanohype/aks-gitops\`. cert-manager, external-secrets, ingress controllers, observability, Kyverno policies. New addons land in the gitops repo, NOT in-app charts.
+
+**Escape hatches** (opt-in, require architecture-artifact justification):
+
+| deploy_target | Tool                      | When to use                                                                                            |
+| ------------- | ------------------------- | ------------------------------------------------------------------------------------------------------ |
+| aws-lambda    | AWS CDK (TS/Python/Go)    | Event-driven only, sub-second cold-start budget, no long-running compute. Template: \`infra-aws\`.    |
+| fly           | fly.toml + Fly Machines   | Edge co-located, single deploy unit across regions. Template: \`infra-fly\`.                          |
+| vercel        | vercel.json               | Static + edge functions, NextJS-flavored. Template: \`infra-vercel\`.                                  |
+| cloudflare    | Wrangler                  | Edge workers, KV/D1/R2 storage primitives, request-rate-sensitive cost. Template: \`infra-cloudflare\`. |
+
+Escape hatches require an architecture-artifact section naming the constraint that makes k8s the wrong shape (cold-start < 1s, edge co-location requirement, etc.). "Simpler" is not a constraint — qa-security auto-REJECTs vague reasoning.
+
+AWS CDK is reachable ONLY via the \`aws-lambda\` escape hatch. The default path on AWS is the k8s-native one above (EKS via landing-zone + eks-gitops + eks-agent-platform). Never introduce a second IaC tool beyond what's listed above without written justification.`;
+
+// ── Platform tenant contract ──────────────────────────────────────
+
+export const PLATFORM_TENANT_CONTRACT = `## Platform tenant contract
+
+Every k8s-native factory deliverable lands as a Platform tenant — a self-contained unit the eks-agent-platform operator can scaffold, suspend (via kill-switch), and tear down via CR reconciliation. The contract:
+
+### Required artifacts
+
+\`\`\`
+<app>/
+  chart/
+    Chart.yaml
+    values.yaml                    # base values (all environments)
+    values-dev.yaml                # dev delta only
+    values-staging.yaml            # staging delta only
+    values-production.yaml         # prod delta only
+    templates/
+      deployment.yaml              # or statefulset.yaml for stateful workloads
+      service.yaml
+      serviceaccount.yaml          # eks.amazonaws.com/role-arn annotation filled by Platform reconciler
+      networkpolicy.yaml           # default-deny + explicit egress allow-list
+      <other resources>            # cronjob, ingress, hpa, etc. as needed
+  gitops/
+    applicationset-entry.yaml      # entry for nanohype/eks-gitops or nanohype/aks-gitops
+  platform.yaml                    # Platform CR (agents.stxkxs.io/v1alpha1)
+\`\`\`
+
+Optional, AI workloads only:
+
+\`\`\`
+  agentfleet.yaml                  # AgentFleet CR composing kagent Agent + ModelConfig + KEDA scaler
+\`\`\`
+
+### Platform CR shape (minimum)
+
+The Platform CR declares the tenant boundary. The operator reconciles Namespace (with Pod Security Standards label), ResourceQuota, LimitRange, default-deny NetworkPolicy, ArgoCD AppProject, per-Platform IRSA role + KMS grants + S3 bucket policy.
+
+\`\`\`yaml
+apiVersion: agents.stxkxs.io/v1alpha1
+kind: Platform
+metadata:
+  name: <app-name>
+  namespace: tenants-<team>
+spec:
+  tenant: <team>
+  irsa:
+    serviceAccount: <app-name>
+    policies:
+      - <managed-or-inline-policy-arn>      # bedrock-invoke, s3-rw, dynamodb-rw, etc.
+  resourceQuota:
+    cpu: <n>
+    memory: <n>Gi
+  storage:
+    bucket: <app-name>-artifacts            # operator provisions + applies bucket policy
+    kmsKey: cmk-data                         # one of the two CMKs from landing-zone
+\`\`\`
+
+### OTel resource attributes (required)
+
+Every pod's OTel SDK init must set these resource attributes — they propagate through traces, logs, and metrics:
+
+- \`agents.tenant: <team>\`
+- \`agents.platform: <app-name>\`
+- \`agents.model_family: <bedrock-family>\` (AI workloads only — anthropic, meta, mistral, etc.)
+- \`agents.model_id: <bedrock-model-id>\` (AI workloads only)
+
+The cluster-level OTel Collector tags downstream exporters using these attributes. Without them, dashboards can't slice by tenant.
+
+### What NOT to do
+
+- Do NOT scaffold IAM roles inside the chart — the Platform reconciler owns IRSA. Reference \`metadata.annotations."eks.amazonaws.com/role-arn"\` filled in by the operator at scaffolding time.
+- Do NOT add cloud-substrate tofu inside the app — substrate lives in \`nanohype/landing-zone\`. App-level tofu is a hard REJECT.
+- Do NOT add cluster-level addons in the chart (ingress controller, cert-manager, External Secrets, observability). Those are gitops-repo concerns.
+- Do NOT skip per-env \`values-{dev,staging,production}.yaml\` — every chart has three deltas even if some are empty (tooling consistency).
+- Do NOT hardcode AWS account IDs, region names, or KMS key ARNs. The Platform reconciler resolves them at scaffolding time and surfaces them in \`status\`.
+
+See IAC_BY_TARGET for the escape-hatch policy (when k8s is the wrong shape and another deploy_target is justified).`;
 
 // ── LLM policy — Claude-primary, Bedrock-preferred ─────────────────
 
@@ -416,6 +506,8 @@ export const FACTORY_PREAMBLE = `# Factory Production Standards
 You are operating on the nanohype factory team. Every deliverable you produce must obey the policies below. These are not suggestions — an artifact that violates them will be rejected at the merge gate and the workflow will loop back for revision.
 
 ${IAC_BY_TARGET}
+
+${PLATFORM_TENANT_CONTRACT}
 
 ${LLM_POLICY}
 
