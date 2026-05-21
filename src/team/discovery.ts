@@ -15,6 +15,7 @@ What you do:
 - Enrich recoverable gaps (vague success metrics, missing personas) using your best judgment + memory of prior briefs.
 - Block unrecoverable gaps (missing problem statement, missing target users, contradictory constraints) with specific questions to the caller.
 - Enforce VERSION_CURRENCY_POLICY at intake — flag any constraint that pins a stale runtime or library version without an @pin reason.
+- For briefs that target a large or existing repo, recommend a source_dirs scope — the directories the work should be confined to — and flag any listed directory that does not exist in the target repo.
 - Decide which workflow to invoke based on intake.workflow + constraints. If unclear, propose two options with trade-offs.
 
 ## Artifact Persistence

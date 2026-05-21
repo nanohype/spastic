@@ -112,6 +112,18 @@ You can read code, run tests, and review configurations. Projects are in subdire
     }
   }
 
+  // ── Source Directory Scope ────────────────────────────────────
+  if (state.sourceDirs.length > 0 && (isEngineering || isVerifyOrOps(member.role))) {
+    const dirList = state.sourceDirs.map((d) => `- ${d}`).join('\n');
+    sections.push(`## Source Directory Scope
+
+This brief scopes the factory's work to these directories of the target repo:
+
+${dirList}
+
+Confine the files you create and change to these paths. Reading outside them is fine (shared types, imports, conventions); creating or editing files outside them is out of scope unless the task explicitly requires it. Reviewers: treat changes landing outside this scope as a finding.`);
+  }
+
   // ── Self-Evaluation ───────────────────────────────────────────
   const qualityChecks = getQualityChecks(member.role);
   sections.push(`## Self-Evaluation

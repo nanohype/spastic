@@ -27,6 +27,7 @@ describe('state', () => {
     expect(state.repos).toEqual([]);
     expect(state.modelOverrides).toEqual({});
     expect(state.sprint).toBeNull();
+    expect(state.sourceDirs).toEqual([]);
   });
 
   it('saveState + loadState roundtrip preserves all fields', async () => {
@@ -49,6 +50,7 @@ describe('state', () => {
       vaultIds: [],
       budgetLimit: null,
       projectLanguage: 'typescript',
+      sourceDirs: ['src/api'],
     };
 
     await saveState(state);
@@ -62,6 +64,7 @@ describe('state', () => {
     expect(loaded.memory.path).toBe('/custom/memory.md');
     expect(loaded.repos).toHaveLength(1);
     expect(loaded.modelOverrides['node-engineer']).toBe('claude-opus-4-6');
+    expect(loaded.sourceDirs).toEqual(['src/api']);
   });
 
   it('clearState resets to defaults', async () => {
@@ -77,6 +80,7 @@ describe('state', () => {
       vaultIds: [],
       budgetLimit: null,
       projectLanguage: 'typescript',
+      sourceDirs: [],
     });
 
     await clearState();
@@ -110,6 +114,7 @@ describe('state', () => {
       vaultIds: [],
       budgetLimit: null,
       projectLanguage: 'typescript',
+      sourceDirs: [],
     });
 
     const raw = await readFile(STATE_FILE, 'utf-8');
