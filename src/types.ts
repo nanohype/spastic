@@ -563,4 +563,5 @@ export interface FabState {
   vaultIds: string[];
   budgetLimit: number | null;
   projectLanguage: Language;
+  sourceDirs: string[];
 }

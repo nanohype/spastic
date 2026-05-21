@@ -210,6 +210,11 @@
         ]
       },
       "description": "Specific deliverables to produce. If omitted, the coordinator decides based on the goal and workflow."
+    },
+    "source_dirs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Repo-relative directories that scope the factory's work for this brief. Optional — if omitted, the team works across the whole target repo. Use it on large or existing repos to point engineers and gate roles at the tree that matters: it focuses the work, cuts wasted scanning, and reduces wrong-place edits. Soft scope — agents may still read outside these paths for shared types and imports, but new and changed files stay within them. Example: [\"almanac/src/audit\", \"almanac/chart\"]."
     }
   },
   "examples": [

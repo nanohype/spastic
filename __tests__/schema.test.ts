@@ -23,6 +23,7 @@ interface IntakeSchema {
     context: SchemaProperty;
     roles: SchemaProperty & { items?: { type: string; enum?: string[] } };
     artifacts: SchemaProperty;
+    source_dirs: SchemaProperty;
   };
   required: string[];
   examples: Array<Record<string, unknown>>;
@@ -134,6 +135,15 @@ describe('fab.schema.json', () => {
     const rolesEnum = schema.properties.roles.items?.enum;
     expect(rolesEnum).toBeDefined();
     expect(rolesEnum).toContain('external-reviewer');
+  });
+
+  it('exposes source_dirs as an optional top-level array of strings', () => {
+    const sd = schema.properties.source_dirs;
+    expect(sd).toBeDefined();
+    expect(sd?.type).toBe('array');
+    expect(sd?.items?.type).toBe('string');
+    expect(schema.required).not.toContain('source_dirs');
+    expect((schema.examples[0] as Record<string, unknown>).source_dirs).toBeUndefined();
   });
 
   it('canonical example is rubric-clean (success_criteria are measurable-shaped)', () => {

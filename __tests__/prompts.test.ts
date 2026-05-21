@@ -16,6 +16,7 @@ function makeState(overrides?: Partial<FabState>): FabState {
     vaultIds: [],
     budgetLimit: null,
     projectLanguage: 'typescript',
+    sourceDirs: [],
     ...overrides,
   };
 }
@@ -163,5 +164,18 @@ describe('buildSystemPrompt', () => {
   it('omits Factory Production Standards for lab roles', () => {
     const prompt = buildSystemPrompt(learner, makeState());
     expect(prompt).not.toContain('# Factory Production Standards');
+  });
+
+  it('appends source directory scope for engineering when sourceDirs is set', () => {
+    const prompt = buildSystemPrompt(nodeEngineer, makeState({ sourceDirs: ['almanac/src/audit'] }));
+    expect(prompt).toContain('## Source Directory Scope');
+    expect(prompt).toContain('almanac/src/audit');
+  });
+
+  it('shows source directory scope to gate roles but not to product, and omits it when unset', () => {
+    const scoped = makeState({ sourceDirs: ['x/y'] });
+    expect(buildSystemPrompt(buildVerifier, scoped)).toContain('## Source Directory Scope');
+    expect(buildSystemPrompt(product, scoped)).not.toContain('## Source Directory Scope');
+    expect(buildSystemPrompt(nodeEngineer, makeState())).not.toContain('## Source Directory Scope');
   });
 });

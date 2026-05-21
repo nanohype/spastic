@@ -4,7 +4,7 @@ import { createRuntime } from './runtimes/index.js';
 import type { GateResult, Language, TeamGroup, TeamRole } from './types.js';
 import { formatEvent } from './stream.js';
 import { callAdvisor } from './advisor.js';
-import { getAgentByRole, getBudgetLimit, getPrimaryRepo, setProjectLanguage } from './state.js';
+import { getAgentByRole, getBudgetLimit, getPrimaryRepo, setProjectLanguage, setSourceDirs } from './state.js';
 import { uploadCostEvent } from './cost.js';
 import { CODE_GATE_ROLES, DOCS_GATE_ROLES } from './standards.js';
 import { parseGateVerdict, mergeGateVerdicts, parseQualityGrades, compareGrades } from './gate.js';
@@ -692,6 +692,11 @@ export async function executeWorkflow(
       console.log(`${YELLOW}Unknown constraints.language "${lang}" — defaulting to typescript${RESET}`);
     }
 
+    const rawDirs = intake?.source_dirs;
+    const intakeDirs = Array.isArray(rawDirs) ? rawDirs.filter((d): d is string => typeof d === 'string') : [];
+    await setSourceDirs(intakeDirs);
+    if (intakeDirs.length) console.log(`${DIM}Source dirs: ${intakeDirs.join(', ')}${RESET}`);
+
     const branchContext = await preCreateFeatureBranch(workflow, userPrompt);
     if (!branchContext) {
       console.log(
@@ -828,6 +833,7 @@ Return the PR URL prominently in your response.`,
 function parseIntakeJson(userPrompt: string): {
   constraints?: { language?: string; deploy_target?: string; timeline?: string };
   context?: { product?: string };
+  source_dirs?: string[];
 } | null {
   const jsonMatch = userPrompt.match(/\{[\s\S]*\}/);
   if (!jsonMatch) return null;

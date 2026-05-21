@@ -191,6 +191,23 @@ Specific deliverables to produce, from the schema enum. Common picks for `featur
 
 If you don't list any, the workflow's default set runs — usually fine, but for a portfolio piece you want to control the deliverable set explicitly.
 
+### `source_dirs` (recommended for existing repos)
+
+Repo-relative directories that scope the factory's work to a subtree of the target repo. Optional — omit it for greenfield builds (a fresh `scaffold` has no existing tree to point at). On a large or existing repo it is the difference between agents working the right directories and agents scanning the whole repo to rediscover where the work lives. Engineers confine new and changed files to these paths; the gate roles review against them. It is a soft scope — agents still read outside it for shared types and imports.
+
+Strong:
+
+```json
+["almanac/src/audit", "almanac/chart"]
+```
+
+— names the exact subtrees the brief touches: the audit module and its Helm chart.
+
+Weak:
+
+- `["src"]` — a single broad directory scopes nothing useful; if the whole repo is in play, omit the field instead.
+- A directory that doesn't exist in the target repo — `intake-analyst` flags it; a typo here silently sends agents nowhere.
+
 ---
 
 ## Anti-patterns observed in past runs

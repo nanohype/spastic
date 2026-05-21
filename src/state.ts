@@ -35,6 +35,7 @@ const EMPTY: FabState = {
   vaultIds: [],
   budgetLimit: null,
   projectLanguage: 'typescript',
+  sourceDirs: [],
 };
 
 export async function loadState(): Promise<FabState> {
@@ -292,6 +293,15 @@ export async function getProjectLanguage(): Promise<Language> {
 export async function setProjectLanguage(language: Language): Promise<FabState> {
   const state = await loadState();
   state.projectLanguage = language;
+  await saveState(state);
+  return state;
+}
+
+// ── Source directories ──────────────────────────────────────────────
+
+export async function setSourceDirs(dirs: string[]): Promise<FabState> {
+  const state = await loadState();
+  state.sourceDirs = dirs;
   await saveState(state);
   return state;
 }
