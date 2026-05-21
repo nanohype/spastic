@@ -5,7 +5,6 @@ import type { GateResult, Language, TeamGroup, TeamRole } from './types.js';
 import { formatEvent } from './stream.js';
 import { callAdvisor } from './advisor.js';
 import { getAgentByRole, getBudgetLimit, getPrimaryRepo, setProjectLanguage, setSourceDirs } from './state.js';
-import { uploadCostEvent } from './cost.js';
 import { CODE_GATE_ROLES, DOCS_GATE_ROLES } from './standards.js';
 import { parseGateVerdict, mergeGateVerdicts, parseQualityGrades, compareGrades } from './gate.js';
 import type { GateVerdict, Grade } from './gate.js';
@@ -1158,23 +1157,6 @@ export async function streamSessionWithAdvisor(session: AgentSession, options?: 
         (usage.input_tokens / 1_000_000) * pricing.input + (usage.output_tokens / 1_000_000) * pricing.output;
       sessionCost += eventCost;
 
-      // Upload to dashboard (fire-and-forget, best-effort)
-      void uploadCostEvent({
-        sessionId,
-        agentId: options?.agentId,
-        agentRole: options?.agentRole,
-        workflow: options?.workflow,
-        model: options?.model ?? 'claude-sonnet-4-6',
-        speed: usage.speed,
-        inputTokens: usage.input_tokens,
-        outputTokens: usage.output_tokens,
-        cacheReadTokens: usage.cache_read_input_tokens,
-        cacheCreationTokens: usage.cache_creation_input_tokens,
-        costUsd: eventCost,
-        source: 'managed_agents',
-        timestamp: event.processed_at || new Date().toISOString(),
-      });
-
       // Budget enforcement
       if (budgetLimit !== null && sessionCost > budgetLimit) {
         process.stdout.write(
@@ -1261,11 +1243,7 @@ export async function streamSessionWithAdvisor(session: AgentSession, options?: 
             );
 
             try {
-              const advice = await callAdvisor(apiKey, question, context, options?.agentRole ?? 'agent', {
-                sessionId,
-                agentRole: options?.agentRole,
-                workflow: options?.workflow,
-              });
+              const advice = await callAdvisor(apiKey, question, context, options?.agentRole ?? 'agent');
               await session.sendInput({
                 type: 'user.custom_tool_result',
                 custom_tool_use_id: eventId,

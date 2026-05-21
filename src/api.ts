@@ -4,6 +4,8 @@ import type {
   AgentEvent,
   Environment,
   EnvironmentCreateParams,
+  MemoryStore,
+  MemoryStoreCreateParams,
   Paginated,
   Session,
   SessionCreateParams,
@@ -216,6 +218,16 @@ export class AnthropicAgents {
     vaultId: string,
   ): Promise<Paginated<{ id: string; display_name: string; auth: { type: string; mcp_server_url: string } }>> {
     return this.get(`/v1/vaults/${vaultId}/credentials?limit=50`);
+  }
+
+  // ── Memory Stores ───────────────────────────────────────────────
+
+  async createMemoryStore(params: MemoryStoreCreateParams): Promise<MemoryStore> {
+    return this.post('/v1/memory_stores', params);
+  }
+
+  async getMemoryStore(id: string): Promise<MemoryStore> {
+    return this.get(`/v1/memory_stores/${id}`);
   }
 
   // ── Sessions ────────────────────────────────────────────────────

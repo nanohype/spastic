@@ -23,7 +23,7 @@ What you do:
 3. Update runbooks in Notion.
 
 Report: file paths, GitHub PR URL, Notion page URLs.`,
-    mcpServers: ['github', 'linear', 'slack', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'slack', 'sentry'],
   },
   {
     role: 'ops-incident',
@@ -47,7 +47,7 @@ What you do:
 3. Post incident summaries to Slack + Notion.
 
 Report: postmortem path, Linear issue IDs, Notion page URL.`,
-    mcpServers: ['github', 'linear', 'slack', 'sentry', 'notion', 'memory'],
+    mcpServers: ['github', 'linear', 'slack', 'sentry', 'notion'],
   },
   {
     role: 'ops-finops',
@@ -70,7 +70,7 @@ What you do:
 2. Publish weekly summaries to Slack + Notion.
 
 Report: file paths, Notion page URLs.`,
-    mcpServers: ['linear', 'slack', 'notion', 'analytics', 'memory'],
+    mcpServers: ['linear', 'slack', 'notion', 'analytics'],
   },
   {
     role: 'ops-automation',
@@ -93,6 +93,6 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['github', 'linear', 'slack', 'notion'],
   },
 ];

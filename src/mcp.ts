@@ -19,7 +19,7 @@ interface McpServerDef {
 // The mcp-gateway deployment (protohype/mcp-gateway) hosts MCP services
 // behind a single API Gateway at /mcp/{service}/{proxy+} with a shared
 // bearer token authorizer. Switchboard services: hubspot, gdrive, analytics,
-// gcal, gcse, stripe. Memory server at /memory (not under /mcp/).
+// gcal, gcse, stripe.
 //
 // Auth: the gateway bearer lives in the vault as one static_bearer credential
 // per gateway URL. The managed-agents runtime injects the Authorization header
@@ -114,14 +114,6 @@ const REGISTRY: Record<string, McpServerDef> = {
     description: 'Billing, subscriptions',
     envOverride: 'MCP_STRIPE_URL',
     ...switchboardService('stripe'),
-  },
-  // ── Semantic memory (mcp-gateway memory Lambda, /memory route) ──
-  // Exposes MCP tools: memory_store, memory_query, memory_list, memory_delete.
-  memory: {
-    name: 'memory',
-    description: 'Semantic memory — store/query learnings by similarity with tags and TTL',
-    defaultUrl: `${GATEWAY_BASE}/memory`,
-    envOverride: 'MCP_MEMORY_URL',
   },
 };
 

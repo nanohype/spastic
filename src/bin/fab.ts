@@ -16,7 +16,9 @@ import {
   getRepos,
   addRepo,
   removeRepo,
+  MEMORY_STORE_NAME,
   getMemoryConfig,
+  getMemoryResource,
   setMemoryConfig,
   getJournalConfig,
   setJournalConfig,
@@ -48,6 +50,7 @@ import type {
   GateResult,
   GitRepoResource,
   Session,
+  SessionResource,
   SkillReference,
   SprintConfig,
   TeamRole,
@@ -89,11 +92,13 @@ async function createSession(api: AnthropicAgents, agentId: string, title?: stri
   }
   const repos = await getRepos();
   const vaults = await getVaultIds();
+  const memory = await getMemoryResource();
+  const resources: SessionResource[] = memory ? [...repos, memory] : repos;
   return api.createSession({
     agent: agentId,
     environment_id: envId,
     ...(title && { title }),
-    ...(repos.length > 0 && { resources: repos }),
+    ...(resources.length > 0 && { resources }),
     ...(vaults.length > 0 && { vault_ids: vaults }),
   });
 }
@@ -185,6 +190,29 @@ async function deploy(args: ParsedArgs): Promise<void> {
       });
       state.environmentId = env.id;
       console.log(`  environment:    ${env.id} (created)\n`);
+    }
+  }
+
+  // Reuse existing memory store or create one — shared cross-session
+  // factory memory, attached to every role session.
+  if (!dryRun && state.memory.enabled) {
+    let exists = false;
+    if (state.memory.storeId) {
+      try {
+        await api!.getMemoryStore(state.memory.storeId);
+        console.log(`  memory store:   ${state.memory.storeId} (existing)\n`);
+        exists = true;
+      } catch {
+        // store was deleted — fall through to recreate
+      }
+    }
+    if (!exists) {
+      const store = await api!.createMemoryStore({
+        name: MEMORY_STORE_NAME,
+        description: 'Shared cross-session memory for the fab factory — agents read and write durable learnings here.',
+      });
+      state.memory.storeId = store.id;
+      console.log(`  memory store:   ${store.id} (created)\n`);
     }
   }
 
@@ -805,13 +833,10 @@ async function memory(args: ParsedArgs): Promise<void> {
   } else if (args.flags.enable) {
     await setMemoryConfig({ enabled: true });
     console.log('Company memory enabled.');
-  } else if (typeof args.flags.path === 'string') {
-    await setMemoryConfig({ path: args.flags.path });
-    console.log(`Memory path: ${args.flags.path}`);
   } else {
     const config = await getMemoryConfig();
     console.log(`Company memory: ${config.enabled ? 'enabled' : 'disabled'}`);
-    console.log(`Path: ${config.path}`);
+    console.log(`Store: ${config.storeId ?? '(not provisioned — run fab deploy)'}`);
   }
 }
 

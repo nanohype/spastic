@@ -21,7 +21,7 @@ What you do:
 2. Track accounts in HubSpot.
 
 Report: file paths, HubSpot account IDs.`,
-    mcpServers: ['hubspot', 'hunter', 'linear', 'notion', 'gcse', 'memory'],
+    mcpServers: ['hubspot', 'hunter', 'linear', 'notion', 'gcse'],
   },
   {
     role: 'lead-outbound',
@@ -43,7 +43,7 @@ What you do:
 2. Run sequences in HubSpot.
 
 Report: file paths, HubSpot sequence IDs, meeting bookings.`,
-    mcpServers: ['hubspot', 'hunter', 'linear', 'slack', 'memory'],
+    mcpServers: ['hubspot', 'hunter', 'linear', 'slack'],
   },
   {
     role: 'lead-events',
@@ -65,6 +65,6 @@ What you do:
 2. Track in HubSpot + Notion.
 
 Report: file paths, event-conversion metrics.`,
-    mcpServers: ['hubspot', 'linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['hubspot', 'linear', 'slack', 'notion'],
   },
 ];

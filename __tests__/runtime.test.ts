@@ -9,9 +9,10 @@ vi.mock('../src/state.js', () => ({
   getEnvironmentId: vi.fn(),
   getRepos: vi.fn(async () => []),
   getVaultIds: vi.fn(async () => []),
+  getMemoryResource: vi.fn(async () => null),
 }));
 
-import { getAgentByRole, getEnvironmentId, getRepos, getVaultIds } from '../src/state.js';
+import { getAgentByRole, getEnvironmentId, getRepos, getVaultIds, getMemoryResource } from '../src/state.js';
 import { ManagedAgentsRuntime } from '../src/runtimes/managed-agents.js';
 
 function fakeApi(overrides: Partial<AnthropicAgents> = {}): AnthropicAgents {
@@ -26,6 +27,7 @@ const mockedGetAgentByRole = getAgentByRole as ReturnType<typeof vi.fn>;
 const mockedGetEnvironmentId = getEnvironmentId as ReturnType<typeof vi.fn>;
 const mockedGetRepos = getRepos as ReturnType<typeof vi.fn>;
 const mockedGetVaultIds = getVaultIds as ReturnType<typeof vi.fn>;
+const mockedGetMemoryResource = getMemoryResource as ReturnType<typeof vi.fn>;
 
 describe('ManagedAgentsRuntime.runRoleSession', () => {
   beforeEach(() => {
@@ -33,8 +35,10 @@ describe('ManagedAgentsRuntime.runRoleSession', () => {
     mockedGetEnvironmentId.mockReset();
     mockedGetRepos.mockReset();
     mockedGetVaultIds.mockReset();
+    mockedGetMemoryResource.mockReset();
     mockedGetRepos.mockResolvedValue([]);
     mockedGetVaultIds.mockResolvedValue([]);
+    mockedGetMemoryResource.mockResolvedValue(null);
   });
 
   it('throws when the role has no deployed agent', async () => {
@@ -82,6 +86,37 @@ describe('ManagedAgentsRuntime.runRoleSession', () => {
       title: 'feature-build: product',
     });
     expect(sendMessage).toHaveBeenCalledWith('sess_001', 'do the thing');
+  });
+
+  it('attaches the memory store when one is provisioned', async () => {
+    mockedGetAgentByRole.mockResolvedValue({
+      role: 'product',
+      agentId: 'agent_p',
+      version: 1,
+      deployedAt: '2026-04-08',
+    });
+    mockedGetEnvironmentId.mockResolvedValue('env_xyz');
+    mockedGetMemoryResource.mockResolvedValue({
+      type: 'memory_store',
+      memory_store_id: 'memstore_1',
+      access: 'read_write',
+    });
+
+    const createSession = vi.fn(async () => ({ id: 'sess_mem' }) as Session);
+    const api = fakeApi({
+      createSession,
+      sendMessage: vi.fn(async () => undefined),
+      stream: vi.fn(() => yieldEvents([])),
+    });
+
+    const runtime = new ManagedAgentsRuntime(api);
+    await runtime.runRoleSession('product', 'm');
+
+    expect(createSession).toHaveBeenCalledWith({
+      agent: 'agent_p',
+      environment_id: 'env_xyz',
+      resources: [{ type: 'memory_store', memory_store_id: 'memstore_1', access: 'read_write' }],
+    });
   });
 
   it('attaches repos and vault ids from state by default', async () => {

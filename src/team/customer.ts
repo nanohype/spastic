@@ -22,7 +22,7 @@ What you do:
 2. Track customer state in Notion / HubSpot.
 
 Report: file paths, Notion / HubSpot URLs.`,
-    mcpServers: ['linear', 'slack', 'notion', 'hubspot', 'memory'],
+    mcpServers: ['linear', 'slack', 'notion', 'hubspot'],
   },
   {
     role: 'cs-support',
@@ -45,7 +45,7 @@ What you do:
 2. Publish KB articles to Notion / public docs.
 
 Report: file paths, ticket IDs handled, KB articles published.`,
-    mcpServers: ['linear', 'slack', 'notion', 'sentry', 'memory'],
+    mcpServers: ['linear', 'slack', 'notion', 'sentry'],
   },
   {
     role: 'cs-renewals',
@@ -67,6 +67,6 @@ What you do:
 2. Track in HubSpot + Notion.
 
 Report: file paths, HubSpot deal IDs, renewal forecast number.`,
-    mcpServers: ['linear', 'slack', 'notion', 'hubspot', 'memory'],
+    mcpServers: ['linear', 'slack', 'notion', 'hubspot'],
   },
 ];

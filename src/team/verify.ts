@@ -106,7 +106,7 @@ Your scope is pure visual + interactive richness. Stay there.
    running in non-managed-agents mode), one logical commit per gap.
 
 Report: verdict file path, GitHub PR URL, count of gaps found vs fixed.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'pr-reviewer',
@@ -140,7 +140,7 @@ APPROVE / REQUEST_CHANGES without TRANSCRIPTS + CITATIONS auto-downgrade to REJE
 2. Optionally post inline comments via the github MCP.
 
 Report: verdict file path, GitHub review URL (if posted).`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'qa-security',
@@ -175,7 +175,7 @@ APPROVE / REQUEST_CHANGES without evidence auto-downgrade to REJECT.
 2. Create Linear issues for any vulnerabilities found (with severity).
 
 Report: verdict file path, Linear issue IDs.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'build-verifier',
@@ -208,7 +208,7 @@ REJECT on any phase failure or stale unpinned dependency.
 1. Write your verdict + transcripts to /workspace/artifacts/build-verifier/verdict.md.
 
 Report: verdict file path, per-phase pass/fail summary.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'artifact-auditor',
@@ -240,7 +240,7 @@ CITATIONS:
 1. Write your verdict to /workspace/artifacts/artifact-auditor/verdict.md.
 
 Report: verdict file path, list of artifacts checked.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'compliance-curator',
@@ -265,6 +265,6 @@ You write findings, not implementation. Hand off enforcement to kyverno-engineer
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, blocking findings.`,
-    mcpServers: ['github', 'notion', 'linear', 'memory'],
+    mcpServers: ['github', 'notion', 'linear'],
   },
 ];

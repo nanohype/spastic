@@ -28,7 +28,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, retrieval eval scores.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'agent-engineer',
@@ -58,7 +58,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, eval-harness results.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'eval-engineer',
@@ -86,7 +86,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, baseline scores per suite.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'bedrock-curator',
@@ -113,7 +113,7 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'claude-curator',
@@ -141,6 +141,6 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, doc URLs cited.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
 ];

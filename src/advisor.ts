@@ -1,11 +1,7 @@
 import type { CustomTool, TeamRole } from './types.js';
-import { uploadCostEvent } from './cost.js';
 
 const BASE = 'https://api.anthropic.com';
 const ADVISOR_MODEL = 'claude-opus-4-6';
-
-// Opus 4.6 pricing per million tokens
-const ADVISOR_PRICING = { input: 15, output: 75 };
 
 /**
  * Roles with access to the Opus advisor tool. Restricting this set keeps
@@ -50,23 +46,14 @@ export const ADVISOR_TOOL: CustomTool = {
   },
 };
 
-interface AdvisorCallContext {
-  sessionId?: string;
-  agentRole?: string;
-  workflow?: string;
-}
-
 /**
  * Call Opus as a senior advisor. Returns the advisor's response text.
- * Uploads a cost event tagged source='advisor' so the dashboard can see
- * Opus spend separately from managed-agents spend.
  */
 export async function callAdvisor(
   apiKey: string,
   question: string,
   context: string,
   agentRole: string,
-  callContext?: AdvisorCallContext,
 ): Promise<string> {
   const systemPrompt = `You are a senior technical advisor. A ${agentRole} agent on a startup team is escalating a decision to you because it requires deeper reasoning. Provide clear, actionable guidance. Be concise — the agent will act on your advice immediately.`;
 
@@ -96,24 +83,6 @@ export async function callAdvisor(
     content: { type: string; text: string }[];
     usage?: { input_tokens: number; output_tokens: number };
   };
-
-  // Fire-and-forget cost upload — tagged as advisor source for separate Opus tracking
-  if (body.usage && callContext?.sessionId) {
-    const costUsd =
-      (body.usage.input_tokens / 1_000_000) * ADVISOR_PRICING.input +
-      (body.usage.output_tokens / 1_000_000) * ADVISOR_PRICING.output;
-    void uploadCostEvent({
-      sessionId: callContext.sessionId,
-      agentRole: callContext.agentRole ?? agentRole,
-      workflow: callContext.workflow,
-      model: ADVISOR_MODEL,
-      inputTokens: body.usage.input_tokens,
-      outputTokens: body.usage.output_tokens,
-      costUsd,
-      source: 'advisor',
-      timestamp: new Date().toISOString(),
-    });
-  }
 
   return body.content
     .filter((b) => b.type === 'text')

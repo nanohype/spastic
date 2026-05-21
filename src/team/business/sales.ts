@@ -26,7 +26,7 @@ What you do:
 2. Track deals in HubSpot.
 
 Report: file paths, HubSpot deal IDs, forecast.`,
-    mcpServers: ['hubspot', 'linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['hubspot', 'linear', 'slack', 'notion'],
     briefTemplate: 'brief-proposal',
   },
   {
@@ -49,7 +49,7 @@ What you do:
 2. Track in HubSpot.
 
 Report: file paths, HubSpot deal IDs.`,
-    mcpServers: ['hubspot', 'linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['hubspot', 'linear', 'slack', 'notion'],
   },
   {
     role: 'sales-ops',
@@ -70,6 +70,6 @@ What you do:
 1. Write to /workspace/artifacts/sales-ops/ (audit.md, reports/, automations.md).
 
 Report: file paths, audit findings count.`,
-    mcpServers: ['hubspot', 'linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['hubspot', 'linear', 'slack', 'notion'],
   },
 ];

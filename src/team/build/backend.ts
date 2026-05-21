@@ -28,7 +28,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, API doc path.`,
-    mcpServers: ['github', 'linear', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry'],
   },
   {
     role: 'python-engineer',
@@ -53,7 +53,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, OpenAPI doc path.`,
-    mcpServers: ['github', 'linear', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry'],
   },
   {
     role: 'go-engineer',
@@ -82,6 +82,6 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry'],
   },
 ];

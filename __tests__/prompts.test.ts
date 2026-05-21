@@ -8,7 +8,7 @@ function makeState(overrides?: Partial<FabState>): FabState {
     agents: [],
     skillIds: {},
     environmentId: null,
-    memory: { enabled: true, path: '/workspace/.fab/memory.md' },
+    memory: { enabled: true, storeId: null },
     journal: { enabled: true, basePath: '/workspace/.fab/journal' },
     repos: [],
     modelOverrides: {},
@@ -40,25 +40,6 @@ describe('buildSystemPrompt', () => {
   it('includes base system prompt', () => {
     const prompt = buildSystemPrompt(product, makeState());
     expect(prompt).toContain('You own what gets built and why');
-  });
-
-  it('appends memory section when enabled', () => {
-    const prompt = buildSystemPrompt(
-      product,
-      makeState({ memory: { enabled: true, path: '/workspace/.fab/memory.md' } }),
-    );
-    expect(prompt).toContain('Company Memory');
-    expect(prompt).toContain('memory_query');
-    expect(prompt).toContain('memory_store');
-    expect(prompt).toContain('agentId');
-  });
-
-  it('omits memory section when disabled', () => {
-    const prompt = buildSystemPrompt(
-      product,
-      makeState({ memory: { enabled: false, path: '/workspace/.fab/memory.md' } }),
-    );
-    expect(prompt).not.toContain('Company Memory');
   });
 
   it('appends journal section with role-specific path', () => {

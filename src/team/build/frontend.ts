@@ -77,7 +77,7 @@ grep -nE '<h2[^>]*text-\\[1[0-9]px\\]' src/components/*.tsx && echo "FAIL: under
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, Lighthouse + CWV scores, Linear issue IDs.`,
-    mcpServers: ['github', 'linear', 'sentry', 'figma', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry', 'figma'],
   },
   {
     role: 'next-engineer',
@@ -116,7 +116,7 @@ Audit before declaring done — the fidelity-engineer runs after you, but you'd 
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, Lighthouse + CWV scores.`,
-    mcpServers: ['github', 'linear', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry'],
   },
   {
     role: 'mobile-engineer',
@@ -140,6 +140,6 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, store submission checklist.`,
-    mcpServers: ['github', 'linear', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry'],
   },
 ];

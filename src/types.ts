@@ -116,6 +116,23 @@ export interface Environment {
   type: 'environment';
 }
 
+// ── Memory Stores ───────────────────────────────────────────────────
+
+export interface MemoryStoreCreateParams {
+  name: string;
+  description: string;
+  metadata?: Record<string, string>;
+}
+
+export interface MemoryStore {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  archived_at: string | null;
+  type: 'memory_store';
+}
+
 // ── Agent ───────────────────────────────────────────────────────────
 
 export interface AgentCreateParams {
@@ -154,7 +171,7 @@ export interface SessionCreateParams {
   environment_id: string;
   title?: string;
   metadata?: Record<string, string>;
-  resources?: GitRepoResource[];
+  resources?: SessionResource[];
   vault_ids?: string[];
 }
 
@@ -494,6 +511,15 @@ export interface GitRepoResource {
   checkout?: { type: 'branch'; name: string };
 }
 
+export interface MemoryStoreResource {
+  type: 'memory_store';
+  memory_store_id: string;
+  access?: 'read_write' | 'read_only';
+  instructions?: string;
+}
+
+export type SessionResource = GitRepoResource | MemoryStoreResource;
+
 // ── Workflow Gates ──────────────────────────────────────────────────
 
 export type GateDecision = 'approve' | 'revise' | 'reject';
@@ -536,7 +562,7 @@ export type Language = 'typescript' | 'go' | 'python' | 'rust' | 'java' | 'kotli
 
 export interface MemoryConfig {
   enabled: boolean;
-  path: string;
+  storeId: string | null;
 }
 
 export interface JournalConfig {

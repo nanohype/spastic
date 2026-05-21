@@ -151,17 +151,17 @@ describe('buildMcpConfigJson', () => {
   });
 
   it('injects gateway bearer for gateway-routed servers', () => {
-    // memory is one of the GATEWAY_HOSTED servers — auth header must
+    // hubspot is one of the GATEWAY_HOSTED servers — auth header must
     // attach regardless of the resolved URL.
-    const json = buildMcpConfigJson(['memory'], {
+    const json = buildMcpConfigJson(['hubspot'], {
       MCP_GATEWAY_TOKEN: 'secret-token-abc',
     } as NodeJS.ProcessEnv);
 
     expect(json).not.toBeNull();
     const config = JSON.parse(json!);
-    expect(config.mcpServers.memory.type).toBe('http');
-    expect(config.mcpServers.memory.url).toBeTypeOf('string');
-    expect(config.mcpServers.memory.headers.Authorization).toBe('Bearer secret-token-abc');
+    expect(config.mcpServers.hubspot.type).toBe('http');
+    expect(config.mcpServers.hubspot.url).toBeTypeOf('string');
+    expect(config.mcpServers.hubspot.headers.Authorization).toBe('Bearer secret-token-abc');
   });
 
   it('drops gateway server with stderr warning when token is missing (default lenient)', () => {
@@ -173,11 +173,11 @@ describe('buildMcpConfigJson', () => {
     }) as typeof process.stderr.write;
 
     try {
-      const json = buildMcpConfigJson(['memory'], {} as NodeJS.ProcessEnv);
-      // memory is the only requested server and it got dropped — json is null
+      const json = buildMcpConfigJson(['hubspot'], {} as NodeJS.ProcessEnv);
+      // hubspot is the only requested server and it got dropped — json is null
       expect(json).toBeNull();
       expect(stderrCalls.join('')).toMatch(/MCP_GATEWAY_TOKEN not set/);
-      expect(stderrCalls.join('')).toMatch(/memory/);
+      expect(stderrCalls.join('')).toMatch(/hubspot/);
     } finally {
       process.stderr.write = orig;
     }
@@ -187,7 +187,7 @@ describe('buildMcpConfigJson', () => {
     const orig = process.stderr.write.bind(process.stderr);
     process.stderr.write = (() => true) as typeof process.stderr.write;
     try {
-      const json = buildMcpConfigJson(['github', 'memory'], {} as NodeJS.ProcessEnv);
+      const json = buildMcpConfigJson(['github', 'hubspot'], {} as NodeJS.ProcessEnv);
       expect(json).not.toBeNull();
       const config = JSON.parse(json!);
       expect(Object.keys(config.mcpServers)).toEqual(['github']);
@@ -198,7 +198,7 @@ describe('buildMcpConfigJson', () => {
 
   it('throws under FAB_MCP_STRICT=1 when gateway server is missing token', () => {
     expect(() =>
-      buildMcpConfigJson(['memory'], {
+      buildMcpConfigJson(['hubspot'], {
         FAB_MCP_STRICT: '1',
       } as NodeJS.ProcessEnv),
     ).toThrow(/MCP_GATEWAY_TOKEN is not set/);

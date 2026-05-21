@@ -11,7 +11,6 @@ import { TEAM } from '../team.js';
 import { buildSystemPrompt } from '../prompts.js';
 import { loadState, getPrimaryRepo } from '../state.js';
 import { resolveMcpServers } from '../mcp.js';
-import { uploadCostEvent } from '../cost.js';
 import { isTerminal, translateSdkMessage } from './sdk-events.js';
 
 /**
@@ -174,20 +173,6 @@ class ClaudeCliSession implements AgentSession {
     }
   }
 
-  private emitCostEvent(result: ResultMessage): void {
-    if (typeof result.total_cost_usd !== 'number') return;
-    void uploadCostEvent({
-      sessionId: this.capturedSessionId,
-      agentRole: this.role,
-      model: this.model,
-      inputTokens: result.usage?.input_tokens ?? 0,
-      outputTokens: result.usage?.output_tokens ?? 0,
-      costUsd: result.total_cost_usd,
-      source: 'claude-cli',
-      timestamp: new Date().toISOString(),
-    });
-  }
-
   private async *translateEvents(): AsyncIterable<AgentEvent> {
     const rl = createInterface({ input: this.proc.stdout, crlfDelay: Infinity });
 
@@ -202,12 +187,6 @@ class ClaudeCliSession implements AgentSession {
           // long; one bad chunk shouldn't take the whole gate down.
           process.stderr.write(`[claude-cli] dropped malformed line: ${line.slice(0, 120)}\n`);
           continue;
-        }
-
-        // Cost capture on result messages — the CLI surfaces totals only
-        // at session end, not per-request like Managed Agents.
-        if (isResultSuccess(parsed)) {
-          this.emitCostEvent(parsed as ResultMessage);
         }
 
         const event = translateSdkMessage(parsed, (id) => {
@@ -422,19 +401,11 @@ interface McpConfigShape {
 
 /**
  * Servers that route through the mcp-gateway and need the shared bearer
- * token. Match's `src/mcp.ts`'s `switchboardService()` set + the memory
- * Lambda. Listed explicitly here so authentication injection doesn't
+ * token. Matches `src/mcp.ts`'s `switchboardService()` set. Listed
+ * explicitly here so authentication injection doesn't
  * depend on URL-prefix matching (which races with env-var resolution).
  */
-const GATEWAY_HOSTED: ReadonlySet<string> = new Set([
-  'hubspot',
-  'gdrive',
-  'analytics',
-  'gcalendar',
-  'gcse',
-  'stripe',
-  'memory',
-]);
+const GATEWAY_HOSTED: ReadonlySet<string> = new Set(['hubspot', 'gdrive', 'analytics', 'gcalendar', 'gcse', 'stripe']);
 
 /**
  * Render the role's MCP server list into Claude Code's `--mcp-config` JSON
@@ -539,19 +510,6 @@ function textOfContent(content: { type: string; text?: string }[]): string {
     .filter((c) => c.type === 'text' && typeof c.text === 'string')
     .map((c) => c.text!)
     .join('');
-}
-
-interface ResultMessage {
-  type: 'result';
-  subtype: string;
-  total_cost_usd?: number;
-  usage?: { input_tokens?: number; output_tokens?: number };
-}
-
-function isResultSuccess(raw: unknown): boolean {
-  if (typeof raw !== 'object' || raw === null) return false;
-  const m = raw as { type?: string; subtype?: string };
-  return m.type === 'result' && m.subtype === 'success';
 }
 
 /**

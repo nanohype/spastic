@@ -23,12 +23,6 @@ describe('TEAM structure', () => {
     expect(counts.factory + counts.firm + counts.lab).toBe(TEAM.length);
   });
 
-  it('every agent includes memory in mcpServers', () => {
-    for (const m of TEAM) {
-      expect(m.mcpServers).toContain('memory');
-    }
-  });
-
   it('all roles are unique', () => {
     const roles = TEAM.map((m) => m.role);
     expect(new Set(roles).size).toBe(roles.length);

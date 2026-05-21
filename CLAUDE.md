@@ -22,16 +22,15 @@ Groups (`group` field):
 - `src/api.ts` — `AnthropicAgents` class wrapping the managed agents REST API. Includes SSE reconnection with `Last-Event-ID`, pagination helper (`listAll`), and fast-model support.
 - `src/runtime.ts` + `src/runtimes/` — `AgentRuntime` interface + three implementations: `managed-agents.ts` against the REST API; `local.ts` against `@anthropic-ai/claude-agent-sdk` (API-billed); `claude-cli.ts` driving the `claude -p` subprocess per role session (subscription-billable via the user's existing Claude Code login). `src/runtimes/sdk-events.ts` holds the shared SDK message → `AgentEvent` translator. `src/runtimes/index.ts` exports `createRuntime(api)` which resolves the transport from `FAB_RUNTIME` (default `managed-agents`). Parity trade-offs documented in [`docs/transports.md`](docs/transports.md).
 - `src/team.ts` — barrel that aggregates per-phase modules under `src/team/<phase>/<area>.ts`. Each module declares ≤ 8 specialists.
-- `src/prompts.ts` — `buildSystemPrompt()` augmentation layer: appends company memory, journal, self-eval, repo, sprint, revision, and factory-production-standards preamble sections based on state + group. The Build Verification Protocol dispatches language-specific commands via `LANGUAGE_TOOLCHAIN[state.projectLanguage]`.
+- `src/prompts.ts` — `buildSystemPrompt()` augmentation layer: appends journal, self-eval, repo, sprint, revision, and factory-production-standards preamble sections based on state + group. The Build Verification Protocol dispatches language-specific commands via `LANGUAGE_TOOLCHAIN[state.projectLanguage]`.
 - `src/standards.ts` — factory production policies. Two layers: (1) **public bar** loaded at module init from the vendored `standards/*.json` (`LANGUAGE_TOOLCHAIN` only at present; future structured facts join via the same loader); (2) **private choreography** declared here as markdown blobs: `FOUR_PHASE_CONTRACT`, `VERSION_CURRENCY_POLICY`, `EVIDENCE_CONTRACT`, `QUALITY_RUBRIC` (dimension weights + per-role assignments + N/A criteria — the depth behind the public dimension names), `IAC_BY_TARGET`, `PLATFORM_TENANT_CONTRACT`, `LLM_POLICY`, `PRODUCTION_BAR` (9 dimensions with the specific REJECT criteria), `COMMIT_PR_POLICY`, `MERGE_GATE_CONTRACT`, `FACTORY_PREAMBLE` (assembled), `CODE_GATE_ROLES`, `DOCS_GATE_ROLES`. The public bar JSON is the [Platform Reference](../nanohype/docs/platform-reference.md); external clients see the guardrails, only fab knows the depth.
 - `src/gate.ts` — pure helpers `parseGateVerdict`, `mergeGateVerdicts`, `applySelfReviewDowngrade` (merge-gate revision loop), plus `parseQualityGrades` + `compareGrades` (external-reviewer calibration). Verdicts without `TRANSCRIPTS:` + `CITATIONS:` blocks are auto-downgraded to REJECT per `EVIDENCE_CONTRACT`.
-- `src/mcp.ts` — MCP server registry. Third-party servers (github, linear, slack, notion, sentry, figma, hunter) hit public endpoints directly. Gateway-hosted services (hubspot, gdrive, analytics, gcalendar, gcse, stripe, memory) route through `${MCP_GATEWAY_BASE_URL}/mcp/{service}`. Auth is injected by the vault at session time (no inline headers).
+- `src/mcp.ts` — MCP server registry. Third-party servers (github, linear, slack, notion, sentry, figma, hunter) hit public endpoints directly. Gateway-hosted services (hubspot, gdrive, analytics, gcalendar, gcse, stripe) route through `${MCP_GATEWAY_BASE_URL}/mcp/{service}`. Auth is injected by the vault at session time (no inline headers).
 - `src/skills.ts` — loads domain skills from the overlay chain (env → user → project → bundled) with nanohype brief templates as a default fallback when no overlay base exists
 - `src/overlay.ts` — overlay resolver. Exports `resolveSkillPath`, `loadSkillWithOverlay`, `appendOverlays`. Priority: `$FAB_SKILLS_DIR` > `~/.fab/skills/` > `<cwd>/.fab/skills/` > bundled `fab/skills/`. Two override styles: `<skill>.md` (replace) and `<skill>.append.md` (concatenate). See [`skills/README.md`](skills/README.md) for the user-facing explanation
 - `src/workflows.ts` — 18 built-in workflows tagged `factory | firm | lab`, with parallel groups, review gates, revision support, and workflow-level merge gates (`gateProfile: 'code' | 'docs'`). `streamWithAdvisor` is the shared stream consumer. `runMergeGate` is the merge-gate finalizer.
 - `src/repl.ts` — interactive REPL with `/quit`, `/status`, `/threads`, `/switch`. Prompts for tool confirmation when `always_ask` policy fires.
-- `src/cost.ts` — fire-and-forget cost event uploader. POSTs to `${MCP_GATEWAY_BASE_URL}/dashboard/api/cost` on every `span.model_request_end` and every advisor call.
-- `src/advisor.ts` — `ADVISOR_TOOL` (Opus 4.6 escalation) + `callAdvisor()`. Cost-tracked, per-session budgeted.
+- `src/advisor.ts` — `ADVISOR_TOOL` (Opus 4.6 escalation) + `callAdvisor()`. Per-session call-budgeted.
 - `src/usage.ts` — token aggregation and cost estimation (local reporting)
 - `src/state.ts` — local `.fab-state.json` persistence
 - `src/stream.ts` — SSE event formatting for terminal output. Handles all event types including MCP tool use, thread events, and session status rescheduled/terminated.
@@ -75,8 +74,7 @@ Every factory agent (30 roles with `group: 'factory'`) receives `FACTORY_PREAMBL
 - **MCP servers always included**: the registry in `mcp.ts` provides default URLs. Env vars override, never gate.
 - **Stream termination**: `streamWithAdvisor` breaks on `session.status_idle`, `session.error`, and `session.status_terminated`. It continues through `session.status_rescheduled` (transient retry).
 - **Advisor access is scoped**: only phase leads + key gate roles get the `consult_advisor` tool (see `ADVISOR_ROLES` in `src/advisor.ts`). All specialist roles are excluded to keep Opus distribution in check. Per-session call cap is 3 (default) via `StreamOptions.maxAdvisorCalls`.
-- **Memory is an MCP server**: agents call `memory_query` / `memory_store` / `memory_list` / `memory_delete` on the gateway's `/memory` endpoint. Each agent's `agentId` is its role name.
-- **Cost events are pushed**: every `span.model_request_end` and every advisor call fires a POST to the dashboard. Tagged `source: 'managed_agents' | 'advisor'` so Opus spend is visible separately.
+- **Memory is native**: `deploy` provisions one shared Managed Agents Memory store (`state.memory.storeId`); `runRoleSession` attaches it to every session via `resources`, mounted at `/mnt/memory/`. There is no memory MCP server and no `buildSystemPrompt` memory section. Managed-agents transport only — `local` / `claude-cli` have no shared memory.
 
 ## Environment
 
@@ -84,12 +82,12 @@ Required:
 
 - `ANTHROPIC_API_KEY`
 
-Required if using the gateway (switchboard services, memory, cost dashboard):
+Required if using the gateway (switchboard services):
 
 - `MCP_GATEWAY_BASE_URL` — API Gateway endpoint from `cdk deploy` output
 - `MCP_GATEWAY_TOKEN` — bearer from `/mcp-gateway/gateway-bearer-token` in Secrets Manager
 
-Optional per-server URL overrides: `MCP_GITHUB_URL`, `MCP_LINEAR_URL`, `MCP_SLACK_URL`, `MCP_NOTION_URL`, `MCP_SENTRY_URL`, `MCP_FIGMA_URL`, `MCP_HUNTER_URL`, `MCP_HUBSPOT_URL`, `MCP_GDRIVE_URL`, `MCP_GCALENDAR_URL`, `MCP_ANALYTICS_URL`, `MCP_GCSE_URL`, `MCP_STRIPE_URL`, `MCP_MEMORY_URL`.
+Optional per-server URL overrides: `MCP_GITHUB_URL`, `MCP_LINEAR_URL`, `MCP_SLACK_URL`, `MCP_NOTION_URL`, `MCP_SENTRY_URL`, `MCP_FIGMA_URL`, `MCP_HUNTER_URL`, `MCP_HUBSPOT_URL`, `MCP_GDRIVE_URL`, `MCP_GCALENDAR_URL`, `MCP_ANALYTICS_URL`, `MCP_GCSE_URL`, `MCP_STRIPE_URL`.
 
 ## Running
 
