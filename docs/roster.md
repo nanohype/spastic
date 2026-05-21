@@ -1,4 +1,4 @@
-# Jaunty Roster
+# Fab Roster
 
 The roster is 83 specialists organized around factory phases. Workflow code in `src/workflows.ts` fans out across phase-scoped multiagent sessions; there is no top-level coordinator agent. Anthropic's Managed Agents caps a multiagent roster at 20 unique agents and does not nest coordinators, so each phase runs as its own session and workflow code orchestrates across them.
 
@@ -132,7 +132,7 @@ The merge gate uses four specialist roles plus an out-of-band calibration:
 Every role's skill resolves through the overlay chain documented in `skills/README.md`:
 
 ```
-$JAUNTY_SKILLS_DIR → ~/.jaunty/skills/ → <cwd>/.jaunty/skills/ → bundled jaunty/skills/
+$FAB_SKILLS_DIR → ~/.fab/skills/ → <cwd>/.fab/skills/ → bundled fab/skills/
 ```
 
-Curators and engineers have bundled baselines at `jaunty/skills/<def.name>.md`. Override any of them via `~/.jaunty/skills/<def.name>.md` (replace) or `<def.name>.append.md` (append). The brief-typed roles (`product`, `design-lead`, `sales-lead`, `marketing-lead`) resolve to nanohype brief templates by default.
+Curators and engineers have bundled baselines at `fab/skills/<def.name>.md`. Override any of them via `~/.fab/skills/<def.name>.md` (replace) or `<def.name>.append.md` (append). The brief-typed roles (`product`, `design-lead`, `sales-lead`, `marketing-lead`) resolve to nanohype brief templates by default.

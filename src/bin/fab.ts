@@ -125,7 +125,7 @@ function client(): AnthropicAgents {
 async function createSession(api: AnthropicAgents, agentId: string, title?: string): Promise<Session> {
   const envId = await getEnvironmentId();
   if (!envId) {
-    console.error('No environment configured. Run: jaunty deploy');
+    console.error('No environment configured. Run: fab deploy');
     process.exit(1);
   }
   const repos = await getRepos();
@@ -145,7 +145,7 @@ async function createSession(api: AnthropicAgents, agentId: string, title?: stri
  */
 async function deployAgent(
   api: AnthropicAgents,
-  state: import('../types.js').JauntyState,
+  state: import('../types.js').FabState,
   role: TeamRole,
   params: AgentCreateParams,
 ): Promise<import('../types.js').Agent> {
@@ -190,7 +190,7 @@ async function deploy(args: ParsedArgs): Promise<void> {
   if (dryRun) {
     console.log('DRY RUN — printing payloads, nothing will be sent\n');
   } else {
-    console.log('Deploying jaunty...\n');
+    console.log('Deploying fab...\n');
   }
 
   // Reuse existing environment or create one
@@ -205,7 +205,7 @@ async function deploy(args: ParsedArgs): Promise<void> {
       } catch {
         // Environment was deleted — create new
         const env = await api!.createEnvironment({
-          name: `jaunty-${Date.now()}`,
+          name: `fab-${Date.now()}`,
           config: {
             type: 'cloud',
             networking: { type: 'unrestricted' },
@@ -217,7 +217,7 @@ async function deploy(args: ParsedArgs): Promise<void> {
       }
     } else {
       const env = await api!.createEnvironment({
-        name: `jaunty-${Date.now()}`,
+        name: `fab-${Date.now()}`,
         config: {
           type: 'cloud',
           networking: { type: 'unrestricted' },
@@ -302,7 +302,7 @@ async function deploy(args: ParsedArgs): Promise<void> {
         ...advisorToolsFor(member.role),
       ],
       ...(skills.length > 0 && { skills }),
-      metadata: { jaunty_role: member.role },
+      metadata: { fab_role: member.role },
     };
 
     if (dryRun) {
@@ -342,7 +342,7 @@ async function deploy(args: ParsedArgs): Promise<void> {
 async function status(): Promise<void> {
   const state = await loadState();
   if (state.agents.length === 0) {
-    console.log('No jaunty deployed. Run: jaunty deploy');
+    console.log('No fab deployed. Run: fab deploy');
     return;
   }
 
@@ -364,12 +364,12 @@ async function status(): Promise<void> {
 async function teardown(): Promise<void> {
   const state = await loadState();
   if (state.agents.length === 0) {
-    console.log('No jaunty deployed.');
+    console.log('No fab deployed.');
     return;
   }
 
   const api = client();
-  console.log('Archiving jaunty...\n');
+  console.log('Archiving fab...\n');
 
   for (const entry of state.agents) {
     try {
@@ -387,7 +387,7 @@ async function teardown(): Promise<void> {
 async function session(args: ParsedArgs): Promise<void> {
   const roleName = args.sub || args.positional[0];
   if (!roleName) {
-    console.error('Usage: jaunty session <role> [--title "..."]');
+    console.error('Usage: fab session <role> [--title "..."]');
     console.error(
       'Common roles: intake-analyst, product, design-lead, react-engineer, agent-engineer, pr-reviewer, release-manager',
     );
@@ -397,7 +397,7 @@ async function session(args: ParsedArgs): Promise<void> {
   const entry = await getAgentByRole(roleName as TeamRole);
   if (!entry) {
     console.error(`No deployed agent for role: ${roleName}`);
-    console.error('Run: jaunty deploy');
+    console.error('Run: fab deploy');
     process.exit(1);
     return;
   }
@@ -414,7 +414,7 @@ async function send(args: ParsedArgs): Promise<void> {
   const sessionId = args.sub;
   const message = args.positional.join(' ');
   if (!sessionId || !message) {
-    console.error('Usage: jaunty send <session-id> <message...>');
+    console.error('Usage: fab send <session-id> <message...>');
     process.exit(1);
   }
 
@@ -427,7 +427,7 @@ async function send(args: ParsedArgs): Promise<void> {
 async function stream(args: ParsedArgs): Promise<void> {
   const sessionId = args.sub;
   if (!sessionId) {
-    console.error('Usage: jaunty stream <session-id>');
+    console.error('Usage: fab stream <session-id>');
     process.exit(1);
   }
 
@@ -439,7 +439,7 @@ async function stream(args: ParsedArgs): Promise<void> {
 async function events(args: ParsedArgs): Promise<void> {
   const sessionId = args.sub;
   if (!sessionId) {
-    console.error('Usage: jaunty events <session-id>');
+    console.error('Usage: fab events <session-id>');
     process.exit(1);
   }
 
@@ -455,7 +455,7 @@ async function events(args: ParsedArgs): Promise<void> {
 async function threads(args: ParsedArgs): Promise<void> {
   const sessionId = args.sub;
   if (!sessionId) {
-    console.error('Usage: jaunty threads <session-id>');
+    console.error('Usage: fab threads <session-id>');
     process.exit(1);
   }
 
@@ -512,7 +512,7 @@ async function adopt(args: ParsedArgs): Promise<void> {
   const role = args.positional[0] as TeamRole | undefined;
 
   if (!agentId || !role) {
-    console.error('Usage: jaunty adopt <agent-id> <role>');
+    console.error('Usage: fab adopt <agent-id> <role>');
     process.exit(1);
     return;
   }
@@ -532,7 +532,7 @@ async function adopt(args: ParsedArgs): Promise<void> {
   await saveState(state);
 
   console.log(`Adopted ${agent.name ?? agent.id} as ${role} (v${agent.version})`);
-  console.log('Next deploy will update this agent with jaunty config.');
+  console.log('Next deploy will update this agent with fab config.');
 }
 
 // ── Standup command ─────────────────────────────────────────────────
@@ -547,7 +547,7 @@ async function standup(args: ParsedArgs): Promise<void> {
   if (!sessionId) {
     const entry = await getAgentByRole('chief-of-staff');
     if (!entry) {
-      console.error('No deployed chief-of-staff. Run: jaunty deploy');
+      console.error('No deployed chief-of-staff. Run: fab deploy');
       process.exit(1);
       return;
     }
@@ -596,7 +596,7 @@ async function workflow(args: ParsedArgs): Promise<void> {
   const prompt = args.positional.join(' ');
 
   if (!name || !prompt) {
-    console.error('Usage: jaunty workflow <name> <prompt...>');
+    console.error('Usage: fab workflow <name> <prompt...>');
     console.error(`\nAvailable workflows:`);
     for (const w of listWorkflows()) {
       console.error(`  ${w.name.padEnd(20)} ${w.description}`);
@@ -688,7 +688,7 @@ async function workflows(): Promise<void> {
 async function chat(args: ParsedArgs): Promise<void> {
   const roleName = args.sub || args.positional[0];
   if (!roleName) {
-    console.error('Usage: jaunty chat <role> [--session <id>] [--title "..."]');
+    console.error('Usage: fab chat <role> [--session <id>] [--title "..."]');
     process.exit(1);
   }
 
@@ -699,7 +699,7 @@ async function chat(args: ParsedArgs): Promise<void> {
   if (!sessionId) {
     const entry = await getAgentByRole(role);
     if (!entry) {
-      console.error(`No deployed agent for role: ${role}\nRun: jaunty deploy`);
+      console.error(`No deployed agent for role: ${role}\nRun: fab deploy`);
       process.exit(1);
       return;
     }
@@ -768,7 +768,7 @@ async function skillsUpload(args: ParsedArgs): Promise<void> {
   const all = !!args.flags.all;
 
   if (!target && !all) {
-    console.error('Usage: jaunty skills upload <role> [--nanohype-path ...]\n       jaunty skills upload --all');
+    console.error('Usage: fab skills upload <role> [--nanohype-path ...]\n       fab skills upload --all');
     process.exit(1);
   }
 
@@ -796,7 +796,7 @@ async function skillsUpload(args: ParsedArgs): Promise<void> {
 async function skillsShow(args: ParsedArgs): Promise<void> {
   const role = args.positional[0] as TeamRole | undefined;
   if (!role) {
-    console.error('Usage: jaunty skills show <role>');
+    console.error('Usage: fab skills show <role>');
     process.exit(1);
   }
 
@@ -884,9 +884,7 @@ async function repo(args: ParsedArgs): Promise<void> {
     const url = args.positional[0];
     const token = typeof args.flags.token === 'string' ? args.flags.token : process.env.GITHUB_TOKEN;
     if (!url || !token) {
-      console.error(
-        'Usage: jaunty repo add <github-url> --token <github-pat> [--branch <branch>] [--path <mount-path>]',
-      );
+      console.error('Usage: fab repo add <github-url> --token <github-pat> [--branch <branch>] [--path <mount-path>]');
       console.error('Or set GITHUB_TOKEN env var.');
       process.exit(1);
     }
@@ -904,7 +902,7 @@ async function repo(args: ParsedArgs): Promise<void> {
   } else if (sub === 'remove') {
     const url = args.positional[0];
     if (!url) {
-      console.error('Usage: jaunty repo remove <github-url>');
+      console.error('Usage: fab repo remove <github-url>');
       process.exit(1);
     }
     await removeRepo(url);
@@ -912,7 +910,7 @@ async function repo(args: ParsedArgs): Promise<void> {
   } else {
     const repos = await getRepos();
     if (repos.length === 0) {
-      console.log('No repos configured. Run: jaunty repo add <github-url>');
+      console.log('No repos configured. Run: fab repo add <github-url>');
       return;
     }
     for (const r of repos) {
@@ -932,7 +930,7 @@ async function vault(args: ParsedArgs): Promise<void> {
   } else if (sub === 'add') {
     const id = args.positional[0];
     if (!id) {
-      console.error('Usage: jaunty vault add <vault-id>');
+      console.error('Usage: fab vault add <vault-id>');
       process.exit(1);
     }
     await addVaultId(id);
@@ -940,7 +938,7 @@ async function vault(args: ParsedArgs): Promise<void> {
   } else if (sub === 'remove') {
     const id = args.positional[0];
     if (!id) {
-      console.error('Usage: jaunty vault remove <vault-id>');
+      console.error('Usage: fab vault remove <vault-id>');
       process.exit(1);
     }
     await removeVaultId(id);
@@ -948,7 +946,7 @@ async function vault(args: ParsedArgs): Promise<void> {
   } else {
     const vaults = await getVaultIds();
     if (vaults.length === 0) {
-      console.log('No vaults configured. Run: jaunty vault setup');
+      console.log('No vaults configured. Run: fab vault setup');
       return;
     }
     for (const v of vaults) {
@@ -990,7 +988,7 @@ async function vaultSetup(): Promise<void> {
   const registry = getRegistry();
 
   // Create vault
-  const vaultName = env.VAULT_NAME || 'jaunty';
+  const vaultName = env.VAULT_NAME || 'fab';
   console.log(`Creating vault: ${vaultName}\n`);
   const vault = await api.createVault(vaultName);
   console.log(`  vault: ${vault.id}\n`);
@@ -1136,7 +1134,7 @@ async function model(args: ParsedArgs): Promise<void> {
     const role = args.positional[0] as TeamRole;
     const modelId = args.positional[1];
     if (!role || !modelId) {
-      console.error('Usage: jaunty model set <role> <model-id>');
+      console.error('Usage: fab model set <role> <model-id>');
       process.exit(1);
     }
     await setModelOverride(role, modelId);
@@ -1144,7 +1142,7 @@ async function model(args: ParsedArgs): Promise<void> {
   } else if (sub === 'clear') {
     const role = args.positional[0] as TeamRole;
     if (!role) {
-      console.error('Usage: jaunty model clear <role>');
+      console.error('Usage: fab model clear <role>');
       process.exit(1);
     }
     await clearModelOverride(role);
@@ -1176,7 +1174,7 @@ async function budget(args: ParsedArgs): Promise<void> {
   if (sub === 'set') {
     const val = parseFloat(args.positional[0]);
     if (isNaN(val) || val <= 0) {
-      console.error('Usage: jaunty budget set <dollars>');
+      console.error('Usage: fab budget set <dollars>');
       process.exit(1);
     }
     await setBudgetLimit(val);
@@ -1195,7 +1193,7 @@ async function budget(args: ParsedArgs): Promise<void> {
 async function exportSession(args: ParsedArgs): Promise<void> {
   const sessionId = args.sub;
   if (!sessionId) {
-    console.error('Usage: jaunty export <session-id> [--output <dir>]');
+    console.error('Usage: fab export <session-id> [--output <dir>]');
     process.exit(1);
   }
 
@@ -1255,7 +1253,7 @@ async function revise(args: ParsedArgs): Promise<void> {
   const sessionId = args.sub;
   const feedback = args.positional.join(' ');
   if (!sessionId || !feedback) {
-    console.error('Usage: jaunty revise <session-id> <feedback...>');
+    console.error('Usage: fab revise <session-id> <feedback...>');
     process.exit(1);
   }
   await reviseWorkflow(client(), sessionId, feedback);
@@ -1266,16 +1264,16 @@ async function revise(args: ParsedArgs): Promise<void> {
 async function scaffold(args: ParsedArgs): Promise<void> {
   const description = [args.sub, ...args.positional].filter(Boolean).join(' ');
   if (!description) {
-    console.error('Usage: jaunty scaffold <product description...>');
+    console.error('Usage: fab scaffold <product description...>');
     console.error('\nExample:');
-    console.error('  jaunty scaffold "RAG-powered search for enterprise document management"');
+    console.error('  fab scaffold "RAG-powered search for enterprise document management"');
     process.exit(1);
   }
 
   const api = client();
   const entry = await getAgentByRole('chief-of-staff');
   if (!entry) {
-    console.error('No deployed chief-of-staff. Run: jaunty deploy');
+    console.error('No deployed chief-of-staff. Run: fab deploy');
     process.exit(1);
     return;
   }
@@ -1323,7 +1321,7 @@ async function scaffold(args: ParsedArgs): Promise<void> {
   }
 
   console.log(`Session: ${sess.id}`);
-  console.log('Run `jaunty revise <session-id> <feedback>` to iterate.');
+  console.log('Run `fab revise <session-id> <feedback>` to iterate.');
 }
 
 // ── Sprint commands ─────────────────────────────────────────────────
@@ -1336,7 +1334,7 @@ async function sprint(args: ParsedArgs): Promise<void> {
       const api = client();
       const entry = await getAgentByRole('chief-of-staff');
       if (!entry) {
-        console.error('No deployed chief-of-staff. Run: jaunty deploy');
+        console.error('No deployed chief-of-staff. Run: fab deploy');
         process.exit(1);
         return;
       }
@@ -1359,7 +1357,7 @@ async function sprint(args: ParsedArgs): Promise<void> {
     case 'standup': {
       const config = await getSprintConfig();
       if (!config) {
-        console.error('No active sprint. Run: jaunty sprint start');
+        console.error('No active sprint. Run: fab sprint start');
         process.exit(1);
         return;
       }
@@ -1384,7 +1382,7 @@ Run a team standup. Query each agent for status. Report blocked items and recomm
       const desc = args.positional.join(' ');
       const role = (typeof args.flags.role === 'string' ? args.flags.role : 'engineering') as TeamRole;
       if (!desc) {
-        console.error('Usage: jaunty sprint add <description> [--role <role>]');
+        console.error('Usage: fab sprint add <description> [--role <role>]');
         process.exit(1);
       }
       await addSprintItem({
@@ -1421,7 +1419,7 @@ Run a team standup. Query each agent for status. Report blocked items and recomm
       break;
     }
     default:
-      console.error('Usage: jaunty sprint <start|standup|add|status|end>');
+      console.error('Usage: fab sprint <start|standup|add|status|end>');
       process.exit(1);
   }
 }
@@ -1429,54 +1427,54 @@ Run a team standup. Query each agent for status. Report blocked items and recomm
 // ── Help ────────────────────────────────────────────────────────────
 
 function printHelp(): void {
-  console.log(`jaunty — manage a startup team of Claude managed agents
+  console.log(`fab — manage a startup team of Claude managed agents
 
 USAGE
-  jaunty deploy [--dry-run] [--skip-skills] [--nanohype-path ...]
+  fab deploy [--dry-run] [--skip-skills] [--nanohype-path ...]
                                        Deploy the full startup team (9 agents + skills)
-  jaunty recover                       Rebuild state from API (agents, skills, environments, vaults)
-  jaunty adopt <agent-id> [role]       Import an existing agent into the jaunty
-  jaunty status                        Show deployed agent status
-  jaunty teardown                      Archive all deployed agents
+  fab recover                       Rebuild state from API (agents, skills, environments, vaults)
+  fab adopt <agent-id> [role]       Import an existing agent into the fab
+  fab status                        Show deployed agent status
+  fab teardown                      Archive all deployed agents
 
-  jaunty session <role> [--title ...]  Create a session with a team member
-  jaunty send <session-id> <message>   Send a message and stream the response
-  jaunty stream <session-id>           Stream events from a running session
-  jaunty events <session-id>           List past events from a session
-  jaunty threads <session-id>          List agent threads in a session
+  fab session <role> [--title ...]  Create a session with a team member
+  fab send <session-id> <message>   Send a message and stream the response
+  fab stream <session-id>           Stream events from a running session
+  fab events <session-id>           List past events from a session
+  fab threads <session-id>          List agent threads in a session
 
-  jaunty chat <role> [--session <id>]   Interactive chat with a team member
+  fab chat <role> [--session <id>]   Interactive chat with a team member
 
-  jaunty standup [--session <id>]      Run a team standup via chief-of-staff
-  jaunty workflow <name> <prompt...>   Run a multi-agent workflow [--no-gates] [--sequential]
-  jaunty workflows                     List available workflows
-  jaunty revise <session-id> <feedback>  Send revision feedback to a completed workflow
-  jaunty usage [--since <date>]        Token usage and cost report
-  jaunty budget [set|clear] <dollars>  Per-session cost limit
-  jaunty export <session-id>           Extract artifacts to local disk
-  jaunty perf                          Agent performance metrics
+  fab standup [--session <id>]      Run a team standup via chief-of-staff
+  fab workflow <name> <prompt...>   Run a multi-agent workflow [--no-gates] [--sequential]
+  fab workflows                     List available workflows
+  fab revise <session-id> <feedback>  Send revision feedback to a completed workflow
+  fab usage [--since <date>]        Token usage and cost report
+  fab budget [set|clear] <dollars>  Per-session cost limit
+  fab export <session-id>           Extract artifacts to local disk
+  fab perf                          Agent performance metrics
 
-  jaunty scaffold <description...>     Full product scaffold [--deploy] [--timeline] [--client] [--webhook <url>]
+  fab scaffold <description...>     Full product scaffold [--deploy] [--timeline] [--client] [--webhook <url>]
 
-  jaunty memory [--enable|--disable]   Company memory config
-  jaunty journal [--enable|--disable]  Agent journal config
-  jaunty repo [add|remove] <url>       Git repo mounting
-  jaunty vault [add|remove] <id>       MCP auth vaults
-  jaunty model [set|clear] <role>      Model routing per role
+  fab memory [--enable|--disable]   Company memory config
+  fab journal [--enable|--disable]  Agent journal config
+  fab repo [add|remove] <url>       Git repo mounting
+  fab vault [add|remove] <id>       MCP auth vaults
+  fab model [set|clear] <role>      Model routing per role
 
-  jaunty sprint start [--cadence ...]  Start sprint mode
-  jaunty sprint standup                Run sprint standup
-  jaunty sprint add <desc> [--role]    Add backlog item
-  jaunty sprint status                 Show sprint state
-  jaunty sprint end                    End sprint
+  fab sprint start [--cadence ...]  Start sprint mode
+  fab sprint standup                Run sprint standup
+  fab sprint add <desc> [--role]    Add backlog item
+  fab sprint status                 Show sprint state
+  fab sprint end                    End sprint
 
-  jaunty skills                        List uploaded skills
-  jaunty skills upload <role|--all>    Upload skill for a role (or all)
-  jaunty skills show <role>            Preview skill content locally
-  jaunty skills teardown               Archive all deployed skills
+  fab skills                        List uploaded skills
+  fab skills upload <role|--all>    Upload skill for a role (or all)
+  fab skills show <role>            Preview skill content locally
+  fab skills teardown               Archive all deployed skills
 
-  jaunty agents                        List all agents
-  jaunty sessions                      List all sessions
+  fab agents                        List all agents
+  fab sessions                      List all sessions
 
 ROLES
   intake-analyst, product, design-lead, react-engineer, next-engineer,
@@ -1510,10 +1508,10 @@ ENVIRONMENT
   MCP_ANALYTICS_URL  MCP_GDRIVE_URL  MCP_STRIPE_URL
 
 EXAMPLES
-  jaunty deploy
-  jaunty skills show product
-  jaunty session product --title "Q2 planning"
-  jaunty send sess_abc123 "Plan the v2 launch"`);
+  fab deploy
+  fab skills show product
+  fab session product --title "Q2 planning"
+  fab send sess_abc123 "Plan the v2 launch"`);
 }
 
 // ── Recover ────────────────────────────────────────────────────────
@@ -1524,7 +1522,7 @@ async function recover(): Promise<void> {
 
   console.log('Recovering state from API...\n');
 
-  // ── Agents: match by metadata.jaunty_role ──────────────────────
+  // ── Agents: match by metadata.fab_role ──────────────────────
   const agentsRes = await api.listAgents(100);
   const matched: { role: TeamRole; agentId: string; version: number; deployedAt: string }[] = [];
   const orphans: { id: string; name: string; role: string; version: number }[] = [];
@@ -1532,11 +1530,11 @@ async function recover(): Promise<void> {
 
   // Sort by updated_at descending so we pick the latest version of each role
   const sorted = agentsRes.data
-    .filter((a) => a.archived_at === null && a.metadata?.jaunty_role)
+    .filter((a) => a.archived_at === null && a.metadata?.fab_role)
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 
   for (const agent of sorted) {
-    const role = agent.metadata.jaunty_role;
+    const role = agent.metadata.fab_role;
     if (seenRoles.has(role)) {
       orphans.push({ id: agent.id, name: agent.name, role, version: agent.version });
       continue;
@@ -1560,13 +1558,13 @@ async function recover(): Promise<void> {
     }
   }
 
-  // ── Environments: pick the one named "jaunty" or most recent ──
+  // ── Environments: pick the one named "fab" or most recent ──
   const envsRes = await api.listEnvironments(20);
   const activeEnvs = envsRes.data.filter((e) => e.archived_at === null);
-  const jauntyEnv = activeEnvs.find((e) => e.name === 'jaunty') ?? activeEnvs[0];
-  if (jauntyEnv) {
-    state.environmentId = jauntyEnv.id;
-    console.log(`  environment:  ${jauntyEnv.id} (${jauntyEnv.name})`);
+  const fabEnv = activeEnvs.find((e) => e.name === 'fab') ?? activeEnvs[0];
+  if (fabEnv) {
+    state.environmentId = fabEnv.id;
+    console.log(`  environment:  ${fabEnv.id} (${fabEnv.name})`);
   } else {
     console.log('  environment:  none found');
   }
@@ -1598,12 +1596,12 @@ async function recover(): Promise<void> {
   );
 
   await saveState(state);
-  console.log(`\nState recovered to .jaunty-state.json`);
+  console.log(`\nState recovered to .fab-state.json`);
 
   if (orphans.length > 0) {
     console.log(`\nTo archive orphaned agents:`);
     for (const o of orphans) {
-      console.log(`  jaunty teardown-agent ${o.id}  # ${o.role} v${o.version}`);
+      console.log(`  fab teardown-agent ${o.id}  # ${o.role} v${o.version}`);
     }
   }
 }

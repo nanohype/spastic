@@ -1,21 +1,21 @@
-# Jaunty skills
+# Fab skills
 
-Skills are the markdown files jaunty ships to its agents — the production-bar preamble, the quality-check rubric, the per-role briefs, the intake guide. Anything an agent reads as "instructions" goes here.
+Skills are the markdown files fab ships to its agents — the production-bar preamble, the quality-check rubric, the per-role briefs, the intake guide. Anything an agent reads as "instructions" goes here.
 
-This directory holds **baselines**. They're shipped with jaunty so the system works out of the box. If you want your factory to feel like _yours_, drop your own files into the **overlay** chain — your files win, no fork needed.
+This directory holds **baselines**. They're shipped with fab so the system works out of the box. If you want your factory to feel like _yours_, drop your own files into the **overlay** chain — your files win, no fork needed.
 
 ## The overlay chain
 
-When jaunty loads a skill named `<skill>`, it walks four locations in priority order. **First match wins** as the base:
+When fab loads a skill named `<skill>`, it walks four locations in priority order. **First match wins** as the base:
 
-| Priority    | Location                             | When to use                                                           |
-| ----------- | ------------------------------------ | --------------------------------------------------------------------- |
-| 1 (highest) | `$JAUNTY_SKILLS_DIR/<skill>.md`      | One-off override for a specific invocation (CI, scripts, experiments) |
-| 2           | `~/.jaunty/skills/<skill>.md`        | Your personal recipe across every project                             |
-| 3           | `<cwd>/.jaunty/skills/<skill>.md`    | Per-project tuning checked into the project's repo                    |
-| 4 (lowest)  | `<jaunty-package>/skills/<skill>.md` | Bundled baseline (this directory)                                     |
+| Priority    | Location                          | When to use                                                           |
+| ----------- | --------------------------------- | --------------------------------------------------------------------- |
+| 1 (highest) | `$FAB_SKILLS_DIR/<skill>.md`      | One-off override for a specific invocation (CI, scripts, experiments) |
+| 2           | `~/.fab/skills/<skill>.md`        | Your personal recipe across every project                             |
+| 3           | `<cwd>/.fab/skills/<skill>.md`    | Per-project tuning checked into the project's repo                    |
+| 4 (lowest)  | `<fab-package>/skills/<skill>.md` | Bundled baseline (this directory)                                     |
 
-For example: jaunty looks for `quality-check.md`. If `~/.jaunty/skills/quality-check.md` exists, it's used. Otherwise the bundled baseline (`jaunty/skills/quality-check.md`) wins.
+For example: fab looks for `quality-check.md`. If `~/.fab/skills/quality-check.md` exists, it's used. Otherwise the bundled baseline (`fab/skills/quality-check.md`) wins.
 
 ## Two override styles
 
@@ -26,9 +26,9 @@ For example: jaunty looks for `quality-check.md`. If `~/.jaunty/skills/quality-c
 Example, by file:
 
 ```
-~/.jaunty/skills/quality-check.md            ← REPLACES the baseline
-~/.jaunty/skills/factory-preamble.append.md  ← ADDS voice rules to the bundled preamble
-<my-project>/.jaunty/skills/brief-prd.append.md  ← project-specific brief addenda
+~/.fab/skills/quality-check.md            ← REPLACES the baseline
+~/.fab/skills/factory-preamble.append.md  ← ADDS voice rules to the bundled preamble
+<my-project>/.fab/skills/brief-prd.append.md  ← project-specific brief addenda
 ```
 
 ## What's bundled today
@@ -43,9 +43,9 @@ Example, by file:
 ## Quick start: write your first overlay
 
 ```sh
-mkdir -p ~/.jaunty/skills
+mkdir -p ~/.fab/skills
 # Add a personal anti-pattern checklist that runs after every quality-check
-cat > ~/.jaunty/skills/quality-check.append.md <<'EOF'
+cat > ~/.fab/skills/quality-check.append.md <<'EOF'
 
 ## Personal anti-patterns (append)
 
@@ -55,13 +55,13 @@ cat > ~/.jaunty/skills/quality-check.append.md <<'EOF'
 EOF
 ```
 
-Next time jaunty loads the quality-check skill for any role, those three rules get appended onto the baseline.
+Next time fab loads the quality-check skill for any role, those three rules get appended onto the baseline.
 
 ## Debug / inspect
 
 ```sh
-# Coming in a follow-up: `jaunty skills resolve <skill>` prints the resolution chain
-# Today: just `ls -la $JAUNTY_SKILLS_DIR ~/.jaunty/skills $(pwd)/.jaunty/skills`
+# Coming in a follow-up: `fab skills resolve <skill>` prints the resolution chain
+# Today: just `ls -la $FAB_SKILLS_DIR ~/.fab/skills $(pwd)/.fab/skills`
 ```
 
 ## Brief-skill overlay caveat
@@ -70,7 +70,7 @@ Brief skills (`brief-prd`, `brief-design-review`, etc.) load by default from `na
 
 ## See also
 
-- [Platform Reference](https://github.com/nanohype/nanohype/blob/main/docs/platform-reference.md) — the org-wide view of the stack jaunty produces work on
-- [`jaunty/CLAUDE.md`](../CLAUDE.md) — Claude Code instructions for working inside this repo
-- [`jaunty/src/overlay.ts`](../src/overlay.ts) — the resolver
-- [`jaunty/__tests__/overlay.test.ts`](../__tests__/overlay.test.ts) — tests covering priority, append, missing-file
+- [Platform Reference](https://github.com/nanohype/nanohype/blob/main/docs/platform-reference.md) — the org-wide view of the stack fab produces work on
+- [`fab/CLAUDE.md`](../CLAUDE.md) — Claude Code instructions for working inside this repo
+- [`fab/src/overlay.ts`](../src/overlay.ts) — the resolver
+- [`fab/__tests__/overlay.test.ts`](../__tests__/overlay.test.ts) — tests covering priority, append, missing-file

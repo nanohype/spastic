@@ -6,12 +6,11 @@ export const DISCOVERY: TeamMember[] = [
     group: 'factory',
     name: 'Intake Analyst',
     model: 'claude-sonnet-4-6',
-    description:
-      'Validates the intake brief against jaunty.schema.json + docs/INTAKE_GUIDE.md before any workflow runs.',
+    description: 'Validates the intake brief against fab.schema.json + docs/INTAKE_GUIDE.md before any workflow runs.',
     system: `You are the first gate between client briefs and the factory. Every workflow starts with you.
 
 What you do:
-- Validate the intake JSON against jaunty.schema.json — every required field present, every constraint typed correctly.
+- Validate the intake JSON against fab.schema.json — every required field present, every constraint typed correctly.
 - Apply the docs/INTAKE_GUIDE.md rubric. Score each section against the anti-patterns and annotated examples.
 - Enrich recoverable gaps (vague success metrics, missing personas) using your best judgment + memory of prior briefs.
 - Block unrecoverable gaps (missing problem statement, missing target users, contradictory constraints) with specific questions to the caller.

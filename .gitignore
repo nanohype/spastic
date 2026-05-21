@@ -2,8 +2,8 @@ node_modules/
 dist/
 .env
 .env.vault.local
-.jaunty-state.json
-.jaunty-perf.json
+.fab-state.json
+.fab-perf.json
 *.tsbuildinfo
 dry-run.json
 service-account.json

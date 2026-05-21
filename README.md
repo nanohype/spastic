@@ -1,4 +1,4 @@
-# jaunty
+# fab
 
 Open-source reference factory for orchestrating Claude agents into a production-grade software pipeline. Clone it, configure your skills overlay, and run your factory — the system is the recipe.
 
@@ -14,11 +14,11 @@ Naming convention: `-curator` (knowledge stewardship) vs `-engineer` (production
 - **Managed Agents** (default) — Anthropic-hosted REST API. Sessions on Anthropic infrastructure.
 - **Local** — `@anthropic-ai/claude-agent-sdk` in-process. Run workflows against your local filesystem.
 
-Pick by setting `JAUNTY_RUNTIME=managed-agents | local`. Trade-offs documented in [`docs/transports.md`](docs/transports.md).
+Pick by setting `FAB_RUNTIME=managed-agents | local`. Trade-offs documented in [`docs/transports.md`](docs/transports.md).
 
 `src/team.ts` is the barrel re-exporting per-phase modules. `src/workflows.ts` is the source of truth for built-in workflows. **`skills/` is the bundled baseline of agent instructions** — quality-check rubric, factory preamble, intake guide, 31 curator/engineer baselines — that any user can override via the [skill overlay](skills/README.md) without forking.
 
-> **The system, customized.** Jaunty ships baseline skills that produce solid output out of the box. Your personal recipe — your sharper quality-check, your tuned voice, your taste — drops into `~/.jaunty/skills/` and overlays on top. No fork, no permission, no migration when jaunty updates.
+> **The system, customized.** Fab ships baseline skills that produce solid output out of the box. Your personal recipe — your sharper quality-check, your tuned voice, your taste — drops into `~/.fab/skills/` and overlays on top. No fork, no permission, no migration when fab updates.
 
 ## Setup
 
@@ -40,73 +40,73 @@ export MCP_GATEWAY_TOKEN=$(aws secretsmanager get-secret-value \
 The vault holds per-agent credentials that the gateway injects at session creation time:
 
 ```sh
-jaunty vault setup            # walks through credential capture
+fab vault setup            # walks through credential capture
 ```
 
 ## Deploy
 
 ```sh
-jaunty deploy                 # creates environment, uploads skills, deploys the full roster
-jaunty deploy --dry-run       # prints all API payloads without sending
-jaunty status                 # show deployed agent status
-jaunty agents                 # list deployed agents and their model overrides
+fab deploy                 # creates environment, uploads skills, deploys the full roster
+fab deploy --dry-run       # prints all API payloads without sending
+fab status                 # show deployed agent status
+fab agents                 # list deployed agents and their model overrides
 ```
 
 ## Interact
 
 ```sh
-jaunty chat <role>                            # interactive REPL — e.g., `jaunty chat product`
-jaunty send <session-id> <message>            # one-shot message + stream
-jaunty workflow <name> "<intake-json or goal>"
-jaunty stream <session-id>                    # tail an in-flight session
-jaunty standup                                # cross-team rollup via chief-of-staff
+fab chat <role>                            # interactive REPL — e.g., `fab chat product`
+fab send <session-id> <message>            # one-shot message + stream
+fab workflow <name> "<intake-json or goal>"
+fab stream <session-id>                    # tail an in-flight session
+fab standup                                # cross-team rollup via chief-of-staff
 ```
 
 ## Local transport
 
 ```sh
-export JAUNTY_RUNTIME=local
-# Skip `jaunty deploy` — local mode builds the role system prompt per-session.
+export FAB_RUNTIME=local
+# Skip `fab deploy` — local mode builds the role system prompt per-session.
 # Install the Agent SDK if it's not already present (it's an optional dependency):
 npm install @anthropic-ai/claude-agent-sdk
-jaunty workflow feature-build '<intake-json>'
+fab workflow feature-build '<intake-json>'
 ```
 
 ## Claude CLI transport (subscription-billable)
 
-If you want jaunty to bill against your existing Claude Code subscription instead of the API, drive the `claude` CLI as a subprocess per role session:
+If you want fab to bill against your existing Claude Code subscription instead of the API, drive the `claude` CLI as a subprocess per role session:
 
 ```sh
 # Ensure your Claude Code login is active
 claude setup-token
 
 # Switch transport
-export JAUNTY_RUNTIME=claude-cli
-jaunty workflow feature-build '<intake-json>'
+export FAB_RUNTIME=claude-cli
+fab workflow feature-build '<intake-json>'
 ```
 
-The subprocess inherits `~/.claude/CLAUDE.md`, hooks, user-level skills, and auto-memory by default. Set `JAUNTY_CLAUDE_BARE=1` for clean-slate runs (note: bare mode forces `ANTHROPIC_API_KEY` auth and disables subscription billing). Full parity matrix in [`docs/transports.md`](docs/transports.md).
+The subprocess inherits `~/.claude/CLAUDE.md`, hooks, user-level skills, and auto-memory by default. Set `FAB_CLAUDE_BARE=1` for clean-slate runs (note: bare mode forces `ANTHROPIC_API_KEY` auth and disables subscription billing). Full parity matrix in [`docs/transports.md`](docs/transports.md).
 
-`jaunty workflows` lists the built-in workflows; each has its own role sequence and (for code-producing workflows) a merge-gate finalizer. See `src/workflows.ts` for the full catalog.
+`fab workflows` lists the built-in workflows; each has its own role sequence and (for code-producing workflows) a merge-gate finalizer. See `src/workflows.ts` for the full catalog.
 
 ## Configuration
 
 ```sh
-jaunty memory                                 # company memory (MCP-backed)
-jaunty journal                                # per-agent journals
-jaunty repo add https://github.com/org/repo --branch main --token <pat>
-jaunty model set <role> <model-id>
-jaunty budget set <usd>                       # per-session advisor budget
+fab memory                                 # company memory (MCP-backed)
+fab journal                                # per-agent journals
+fab repo add https://github.com/org/repo --branch main --token <pat>
+fab model set <role> <model-id>
+fab budget set <usd>                       # per-session advisor budget
 ```
 
 ## Sprint mode
 
 ```sh
-jaunty sprint start --cadence weekly
-jaunty sprint add "Implement search API" --role engineering
-jaunty sprint standup
-jaunty sprint status
-jaunty sprint end
+fab sprint start --cadence weekly
+fab sprint add "Implement search API" --role engineering
+fab sprint standup
+fab sprint status
+fab sprint end
 ```
 
 ## Skills
@@ -114,26 +114,26 @@ jaunty sprint end
 Each agent is loaded with a domain skill derived from nanohype brief templates:
 
 ```sh
-jaunty skills show <role>
-jaunty skills upload --all
+fab skills show <role>
+fab skills upload --all
 ```
 
 ## Inspection / operations
 
 ```sh
-jaunty sessions                               # list sessions
-jaunty threads <session-id>                   # list threads
-jaunty events <session-id>                    # raw SSE event stream
-jaunty usage                                  # token + cost rollups
-jaunty perf                                   # latency + reliability stats
-jaunty export <session-id> > transcript.json
-jaunty recover <session-id>                   # resume an interrupted stream
-jaunty adopt <agent-id>                       # adopt an externally-created agent into state
+fab sessions                               # list sessions
+fab threads <session-id>                   # list threads
+fab events <session-id>                    # raw SSE event stream
+fab usage                                  # token + cost rollups
+fab perf                                   # latency + reliability stats
+fab export <session-id> > transcript.json
+fab recover <session-id>                   # resume an interrupted stream
+fab adopt <agent-id>                       # adopt an externally-created agent into state
 ```
 
 ## Intake contract
 
-The coordinator accepts structured JSON conforming to `jaunty.schema.json`. Any external agent can read the schema and construct a valid first message:
+The coordinator accepts structured JSON conforming to `fab.schema.json`. Any external agent can read the schema and construct a valid first message:
 
 ```json
 {

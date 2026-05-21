@@ -1,9 +1,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AnthropicAgents } from './api.js';
-import type { JauntyState } from './types.js';
+import type { FabState } from './types.js';
 
-const PERF_FILE = join(process.cwd(), '.jaunty-perf.json');
+const PERF_FILE = join(process.cwd(), '.fab-perf.json');
 
 export interface RoleMetrics {
   sessions: number;
@@ -45,11 +45,7 @@ async function savePerf(data: PerfData): Promise<void> {
 /**
  * Scan a session's events and update perf metrics for all participating roles.
  */
-export async function collectSessionMetrics(
-  api: AnthropicAgents,
-  sessionId: string,
-  state: JauntyState,
-): Promise<void> {
+export async function collectSessionMetrics(api: AnthropicAgents, sessionId: string, state: FabState): Promise<void> {
   const perf = await loadPerf();
   const agentIdToRole = new Map<string, string>();
   for (const a of state.agents) {

@@ -1,5 +1,5 @@
 import type { AgentRuntime, AgentSession, RunRoleOptions } from '../runtime.js';
-import type { AgentEvent, JauntyState, TeamRole, UserEvent } from '../types.js';
+import type { AgentEvent, FabState, TeamRole, UserEvent } from '../types.js';
 import { TEAM } from '../team.js';
 import { buildSystemPrompt } from '../prompts.js';
 import { loadState } from '../state.js';
@@ -10,7 +10,7 @@ import { isTerminal, textOf, translateSdkMessage } from './sdk-events.js';
  *
  * Runs the same role definitions in-process via Claude Code's Agent SDK
  * instead of the Managed Agents REST API. The SDK is loaded dynamically so
- * jaunty remains installable without it (it ships as an optional
+ * fab remains installable without it (it ships as an optional
  * dependency); a clear error fires if local mode is selected without the
  * package present.
  *
@@ -29,7 +29,7 @@ import { isTerminal, textOf, translateSdkMessage } from './sdk-events.js';
  *   - Threading: SDK does not expose Anthropic threading; multi-thread
  *     events are not emitted locally.
  *
- * Picked by setting `JAUNTY_RUNTIME=local` at startup. See
+ * Picked by setting `FAB_RUNTIME=local` at startup. See
  * `src/runtimes/index.ts` for the selection logic.
  */
 export class LocalRuntime implements AgentRuntime {
@@ -255,11 +255,11 @@ class ResumedLocalAgentSession implements AgentSession {
 }
 
 /**
- * Convenience export so the test suite can verify the JauntyState plumbing
+ * Convenience export so the test suite can verify the FabState plumbing
  * without spinning up an SDK process. Re-exporting allows callers to mock
  * `buildSystemPrompt` if they want to assert prompt contents.
  */
-export function _buildLocalSystemPrompt(role: TeamRole, state: JauntyState): string {
+export function _buildLocalSystemPrompt(role: TeamRole, state: FabState): string {
   const member = TEAM.find((m) => m.role === role);
   if (!member) throw new Error(`Unknown role: "${role}"`);
   return buildSystemPrompt(member, state);

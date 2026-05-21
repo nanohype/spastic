@@ -3,14 +3,14 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Language, TeamRole } from './types.js';
 
-// ── Jaunty Factory Production Standards ───────────────────────────
+// ── Fab Factory Production Standards ───────────────────────────
 //
 // Two layers:
 //
 //   1. PUBLIC BAR — the standards JSON loaded at module init below.
 //      The single source of truth for the policies external clients
 //      also obey, surfaced as typed constants (LANGUAGE_TOOLCHAIN,
-//      etc.) so the rest of jaunty consumes them through stable names.
+//      etc.) so the rest of fab consumes them through stable names.
 //
 //   2. PRIVATE CHOREOGRAPHY — the markdown blobs further down: the
 //      factory-side enforcement, evidence contracts, merge-gate

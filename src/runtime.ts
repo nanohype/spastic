@@ -3,7 +3,7 @@ import type { AgentEvent, GitRepoResource, TeamRole, UserEvent } from './types.j
 /**
  * Transport-agnostic agent runtime.
  *
- * Jaunty supports two transports:
+ * Fab supports two transports:
  *
  *   - **ManagedAgentsRuntime** — the Anthropic Managed Agents REST API. Agents
  *     are deployed cloud-side, sessions persist on Anthropic's infrastructure,
@@ -81,7 +81,7 @@ export interface AgentRuntime {
    * iterate + drive.
    *
    * Throws if the role has no deployed agent (the transport's deployment
-   * step must run first — typically `jaunty deploy`).
+   * step must run first — typically `fab deploy`).
    */
   runRoleSession(role: TeamRole, message: string, options?: RunRoleOptions): Promise<AgentSession>;
 

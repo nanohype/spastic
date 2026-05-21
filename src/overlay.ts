@@ -1,7 +1,7 @@
 /**
  * Skill overlay resolution.
  *
- * Jaunty ships baseline skills (skill files in `jaunty/skills/`) but lets
+ * Fab ships baseline skills (skill files in `fab/skills/`) but lets
  * users layer their own versions on top without forking. Two override styles:
  *
  *   - Replace: drop `<skill>.md` at a higher-priority path. Wins outright.
@@ -10,10 +10,10 @@
  *
  * Priority order, highest first:
  *
- *   1. $JAUNTY_SKILLS_DIR        (per-invocation override)
- *   2. ~/.jaunty/skills/         (per-user — the personal recipe)
- *   3. <cwd>/.jaunty/skills/     (per-project)
- *   4. <jaunty-package>/skills/  (bundled baseline)
+ *   1. $FAB_SKILLS_DIR        (per-invocation override)
+ *   2. ~/.fab/skills/         (per-user — the personal recipe)
+ *   3. <cwd>/.fab/skills/     (per-project)
+ *   4. <fab-package>/skills/  (bundled baseline)
  *
  * The bundled baseline is always the last resort. If a skill has no base in
  * any layer, the resolver returns `base: null` and the caller decides what
@@ -54,16 +54,16 @@ function bundledDir(): string {
 
 /**
  * Compute the priority-ordered list of layers. Exposed for tests and
- * for `jaunty skills layers` style CLI introspection.
+ * for `fab skills layers` style CLI introspection.
  */
 export function overlayLayers(env: NodeJS.ProcessEnv = process.env, cwd: string = process.cwd()): Layer[] {
   // `env.HOME` is honored when passed (lets tests inject a sandbox).
   // Falls through to `os.homedir()` when the caller doesn't override it.
   const home = env.HOME ?? homedir();
   return [
-    { source: 'env', dir: env.JAUNTY_SKILLS_DIR ? resolve(env.JAUNTY_SKILLS_DIR) : null },
-    { source: 'user', dir: join(home, '.jaunty', 'skills') },
-    { source: 'project', dir: join(cwd, '.jaunty', 'skills') },
+    { source: 'env', dir: env.FAB_SKILLS_DIR ? resolve(env.FAB_SKILLS_DIR) : null },
+    { source: 'user', dir: join(home, '.fab', 'skills') },
+    { source: 'project', dir: join(cwd, '.fab', 'skills') },
     { source: 'bundled', dir: bundledDir() },
   ];
 }
