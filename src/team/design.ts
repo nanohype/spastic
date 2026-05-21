@@ -42,7 +42,7 @@ If the design system spec is missing any of these, the fidelity-engineer will RE
 3. Push token files to GitHub if available.
 
 Report: file paths, Notion page URLs, GitHub commit/PR URLs.`,
-    mcpServers: ['github', 'notion', 'figma', 'memory'],
+    mcpServers: ['github', 'notion', 'figma'],
     briefTemplate: 'brief-design-review',
   },
   {
@@ -91,7 +91,7 @@ A section with only a heading + paragraph + maybe a button is sparse. Fidelity-e
 3. Push wireframes to GitHub.
 
 Report: file paths, Notion page URLs, GitHub PR URLs.`,
-    mcpServers: ['github', 'notion', 'slack', 'figma', 'memory'],
+    mcpServers: ['github', 'notion', 'slack', 'figma'],
   },
   {
     role: 'accessibility-engineer',
@@ -121,7 +121,7 @@ What you do:
 3. Write audit summaries to Notion.
 
 Report: file paths, Linear issue IDs, Notion page URLs.`,
-    mcpServers: ['github', 'linear', 'notion', 'figma', 'memory'],
+    mcpServers: ['github', 'linear', 'notion', 'figma'],
   },
   {
     role: 'ux-writer',
@@ -152,6 +152,6 @@ What you do:
 3. Push copy strings to GitHub.
 
 Report: file paths, Notion page URLs, GitHub PR URLs.`,
-    mcpServers: ['notion', 'github', 'linear', 'memory'],
+    mcpServers: ['notion', 'github', 'linear'],
   },
 ];

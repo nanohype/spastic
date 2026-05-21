@@ -27,7 +27,7 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'kagent-curator',
@@ -49,7 +49,7 @@ What you advise on:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'agentgateway-curator',
@@ -71,7 +71,7 @@ What you advise on:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'kubebuilder-engineer',
@@ -96,6 +96,6 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
 ];

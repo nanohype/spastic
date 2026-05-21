@@ -8,6 +8,7 @@ import type {
   JournalConfig,
   Language,
   MemoryConfig,
+  MemoryStoreResource,
   SprintConfig,
   SprintItem,
   TeamRole,
@@ -27,7 +28,7 @@ const EMPTY: FabState = {
   agents: [],
   skillIds: {},
   environmentId: null,
-  memory: { enabled: true, path: '/workspace/.fab/memory.md' },
+  memory: { enabled: true, storeId: null },
   journal: { enabled: true, basePath: '/workspace/.fab/journal' },
   repos: [],
   modelOverrides: {},
@@ -117,6 +118,9 @@ export async function getEnvironmentId(): Promise<string | null> {
 
 // ── Memory ──────────────────────────────────────────────────────────
 
+/** Name of the shared factory memory store; also its mount directory under /mnt/memory/. */
+export const MEMORY_STORE_NAME = 'fab-factory-memory';
+
 export async function getMemoryConfig(): Promise<MemoryConfig> {
   const state = await loadState();
   return state.memory;
@@ -127,6 +131,21 @@ export async function setMemoryConfig(config: Partial<MemoryConfig>): Promise<Fa
   state.memory = { ...state.memory, ...config };
   await saveState(state);
   return state;
+}
+
+/**
+ * The memory-store resource to attach to a role session, or null when
+ * memory is disabled or no store has been provisioned yet (run `fab deploy`).
+ */
+export async function getMemoryResource(): Promise<MemoryStoreResource | null> {
+  const state = await loadState();
+  if (!state.memory.enabled || !state.memory.storeId) return null;
+  return {
+    type: 'memory_store',
+    memory_store_id: state.memory.storeId,
+    access: 'read_write',
+    instructions: `Factory memory is mounted at /mnt/memory/${MEMORY_STORE_NAME}/. Write durable learnings, decisions, and patterns under a directory named for your role; read /shared/ and other roles' directories when they bear on the task. Keep entries concise — decisions and learnings, not transcripts.`,
+  };
 }
 
 // ── Journals ────────────────────────────────────────────────────────

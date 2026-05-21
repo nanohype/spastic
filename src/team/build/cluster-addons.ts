@@ -23,7 +23,7 @@ What you advise on:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'eks-gitops-curator',
@@ -46,7 +46,7 @@ What you advise on:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'kyverno-engineer',
@@ -70,7 +70,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'cert-manager-curator',
@@ -93,7 +93,7 @@ What you advise on:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'secrets-engineer',
@@ -117,7 +117,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'observability-engineer',
@@ -141,7 +141,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'sentry'],
   },
   {
     role: 'keda-engineer',
@@ -165,6 +165,6 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
 ];

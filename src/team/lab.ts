@@ -25,7 +25,7 @@ You produce no APPROVE / REJECT verdict. Grades only.
 1. Write to /workspace/artifacts/external-reviewer/grades.md.
 
 Report: file path, grade summary.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'prompt-optimizer',
@@ -48,7 +48,7 @@ What you do:
 2. Create Linear issues for each recommendation.
 
 Report: file paths, Linear issue IDs.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'learner',
@@ -71,6 +71,6 @@ What you do:
 3. Publish curated learnings to Notion.
 
 Report: file paths, memory entries created, Notion page URLs.`,
-    mcpServers: ['github', 'notion', 'memory'],
+    mcpServers: ['github', 'notion'],
   },
 ];

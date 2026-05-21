@@ -25,7 +25,7 @@ What you do:
 2. Track campaigns in Notion + HubSpot.
 
 Report: file paths, Notion page URLs.`,
-    mcpServers: ['linear', 'notion', 'slack', 'hubspot', 'analytics', 'memory'],
+    mcpServers: ['linear', 'notion', 'slack', 'hubspot', 'analytics'],
     briefTemplate: 'brief-campaign-plan',
   },
   {
@@ -49,7 +49,7 @@ What you do:
 2. Publish via the marketing channels (CMS, email platform).
 
 Report: file paths, published URLs, scheduled send dates.`,
-    mcpServers: ['linear', 'notion', 'slack', 'gcse', 'memory'],
+    mcpServers: ['linear', 'notion', 'slack', 'gcse'],
   },
   {
     role: 'seo-engineer',
@@ -70,7 +70,7 @@ What you do:
 1. Write to /workspace/artifacts/seo-engineer/ (audit.md, keyword-strategy.md, optimization-plan.md).
 
 Report: file paths, audit findings count.`,
-    mcpServers: ['linear', 'notion', 'gcse', 'analytics', 'memory'],
+    mcpServers: ['linear', 'notion', 'gcse', 'analytics'],
   },
   {
     role: 'brand-strategist',
@@ -92,6 +92,6 @@ What you do:
 2. Publish to Notion as the source of truth.
 
 Report: file paths, Notion page URLs.`,
-    mcpServers: ['notion', 'slack', 'memory'],
+    mcpServers: ['notion', 'slack'],
   },
 ];

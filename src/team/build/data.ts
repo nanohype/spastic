@@ -24,7 +24,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, EXPLAIN ANALYZE outputs.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'opensearch-engineer',
@@ -48,7 +48,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, query-perf measurements.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'dynamodb-curator',
@@ -75,6 +75,6 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
 ];

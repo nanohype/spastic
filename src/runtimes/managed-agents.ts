@@ -1,7 +1,7 @@
 import type { AnthropicAgents } from '../api.js';
 import type { AgentRuntime, AgentSession, RunRoleOptions } from '../runtime.js';
-import type { AgentEvent, TeamRole, UserEvent } from '../types.js';
-import { getAgentByRole, getEnvironmentId, getRepos, getVaultIds } from '../state.js';
+import type { AgentEvent, SessionResource, TeamRole, UserEvent } from '../types.js';
+import { getAgentByRole, getEnvironmentId, getMemoryResource, getRepos, getVaultIds } from '../state.js';
 
 /**
  * Agent runtime implementation against the Anthropic Managed Agents REST API.
@@ -30,15 +30,18 @@ export class ManagedAgentsRuntime implements AgentRuntime {
     }
 
     // Repos + vaults come from the workspace state by default; allow caller
-    // to override via options (useful for tests).
+    // to override via options (useful for tests). The shared factory memory
+    // store is attached to every session when one has been provisioned.
     const repos = options?.resources ?? (await getRepos());
     const vaultIds = options?.vaultIds ?? (await getVaultIds());
+    const memory = await getMemoryResource();
+    const resources: SessionResource[] = memory ? [...repos, memory] : repos;
 
     const sess = await this.api.createSession({
       agent: entry.agentId,
       environment_id: envId,
       ...(options?.title && { title: options.title }),
-      ...(repos.length > 0 && { resources: repos }),
+      ...(resources.length > 0 && { resources }),
       ...(vaultIds.length > 0 && { vault_ids: vaultIds }),
     });
 

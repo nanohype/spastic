@@ -17,26 +17,6 @@ export function buildSystemPrompt(member: TeamMember, state: FabState): string {
     sections.push(FACTORY_PREAMBLE);
   }
 
-  // ── Company Memory (semantic, via memory MCP server) ──────────
-  if (state.memory.enabled) {
-    const agentId = member.role;
-    sections.push(`## Company Memory
-
-You have access to a semantic memory MCP server. Tools:
-- memory_query({ agentId, query, topK?, threshold? }) — semantic similarity search
-- memory_store({ agentId, text, summary?, tags?, ttl?, metadata? }) — save a learning
-- memory_list({ agentId, tags?, limit? }) — list your memories (tag-filtered)
-- memory_delete({ agentId, memoryId }) — remove
-
-These are MCP tools, not shell commands. Invoke them by name through the MCP toolset. NEVER shell out (\`bash\`, \`sh\`, \`eval\`) with \`memory_query ...\` as if it were a CLI — it is not on PATH, the call will silently fail, and a silent miss is worse than a loud one. If a memory tool errors or is unavailable, report it explicitly in your deliverable ("memory unavailable — proceeded without prior context"); do not mask failures with \`|| echo\` or \`2>/dev/null\` fallbacks.
-
-Your agentId is "${agentId}".
-
-Before starting work: memory_query({ agentId: "${agentId}", query: <task-summary>, topK: 5 }) for prior decisions and learnings relevant to this task.
-
-After completing your deliverables: memory_store({ agentId: "${agentId}", text, tags: [<task-tags>] }) with key decisions and durable learnings — not transcripts.`);
-  }
-
   // ── Agent Journal ─────────────────────────────────────────────
   if (state.journal.enabled) {
     const journalPath = `${state.journal.basePath}/${member.role}.md`;

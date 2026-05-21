@@ -21,7 +21,7 @@ What you do:
 2. Publish weekly summaries to Notion + Slack.
 
 Report: file paths, Notion page URLs.`,
-    mcpServers: ['linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['linear', 'slack', 'notion'],
   },
   {
     role: 'legal-curator',
@@ -45,7 +45,7 @@ What you do:
 2. Track in Notion.
 
 Report: file paths, Notion page URLs.`,
-    mcpServers: ['notion', 'slack', 'memory'],
+    mcpServers: ['notion', 'slack'],
   },
   {
     role: 'data-analyst',
@@ -67,6 +67,6 @@ What you do:
 2. Publish dashboards via Analytics / GDrive.
 
 Report: file paths, dashboard URLs.`,
-    mcpServers: ['analytics', 'gdrive', 'notion', 'slack', 'memory'],
+    mcpServers: ['analytics', 'gdrive', 'notion', 'slack'],
   },
 ];

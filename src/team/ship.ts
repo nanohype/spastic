@@ -27,7 +27,7 @@ Pre-push synthesis:
 2. Commit + open the PR via the github MCP.
 
 Report: file paths, PR URL, release tag.`,
-    mcpServers: ['github', 'linear', 'slack', 'notion', 'memory'],
+    mcpServers: ['github', 'linear', 'slack', 'notion'],
   },
   {
     role: 'deploy-engineer',
@@ -50,7 +50,7 @@ What you do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, deploy status, ArgoCD sync result.`,
-    mcpServers: ['github', 'linear', 'slack', 'sentry', 'memory'],
+    mcpServers: ['github', 'linear', 'slack', 'sentry'],
   },
   {
     role: 'migration-engineer',
@@ -73,6 +73,6 @@ What you do:
 2. Commit migration files via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, migration status.`,
-    mcpServers: ['github', 'linear', 'slack', 'memory'],
+    mcpServers: ['github', 'linear', 'slack'],
   },
 ];

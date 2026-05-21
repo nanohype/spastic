@@ -22,7 +22,7 @@ What you advise on:
 2. Commit configuration via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'jira-curator',
@@ -43,7 +43,7 @@ What you advise on:
 1. Write to /workspace/artifacts/jira-curator/ (scheme-design.md, workflows.md, fields.md, jql-cookbook.md).
 
 Report: file paths.`,
-    mcpServers: ['memory'],
+    mcpServers: [],
   },
   {
     role: 'notion-curator',
@@ -65,7 +65,7 @@ What you advise on:
 2. Publish guidance to Notion.
 
 Report: file paths, Notion page URLs.`,
-    mcpServers: ['notion', 'memory'],
+    mcpServers: ['notion'],
   },
   {
     role: 'slack-curator',
@@ -86,7 +86,7 @@ What you advise on:
 1. Write to /workspace/artifacts/slack-curator/ (conventions.md, routing.md, retention.md).
 
 Report: file paths.`,
-    mcpServers: ['slack', 'memory'],
+    mcpServers: ['slack'],
   },
   {
     role: 'linear-curator',
@@ -107,7 +107,7 @@ What you advise on:
 1. Write to /workspace/artifacts/linear-curator/ (workspace.md, cycles.md, labels.md, automations.md).
 
 Report: file paths.`,
-    mcpServers: ['linear', 'memory'],
+    mcpServers: ['linear'],
   },
   {
     role: 'figma-curator',
@@ -128,7 +128,7 @@ What you advise on:
 1. Write to /workspace/artifacts/figma-curator/ (hierarchy.md, tokens.md, handoff.md).
 
 Report: file paths.`,
-    mcpServers: ['figma', 'memory'],
+    mcpServers: ['figma'],
   },
   {
     role: 'stripe-curator',
@@ -150,6 +150,6 @@ What you advise on:
 1. Write to /workspace/artifacts/stripe-curator/ (pricing-model.md, billing-flows.md, webhooks.md).
 
 Report: file paths.`,
-    mcpServers: ['stripe', 'memory'],
+    mcpServers: ['stripe'],
   },
 ];

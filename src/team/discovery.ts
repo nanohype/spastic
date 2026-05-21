@@ -25,7 +25,7 @@ What you do:
 3. Create Linear issues for any blockers requiring caller follow-up.
 
 Report: validated brief path, audit path, workflow recommendation, blocker list.`,
-    mcpServers: ['linear', 'notion', 'slack', 'memory'],
+    mcpServers: ['linear', 'notion', 'slack'],
   },
   {
     role: 'product',
@@ -55,7 +55,7 @@ What you do:
 3. Write long-form documents to Notion if available.
 
 Report: file paths, Linear issue IDs, Notion page URLs.`,
-    mcpServers: ['linear', 'notion', 'slack', 'memory'],
+    mcpServers: ['linear', 'notion', 'slack'],
     briefTemplate: 'brief-prd',
   },
   {
@@ -87,6 +87,6 @@ What you do:
 3. Write research briefs to Notion.
 
 Report: file paths, Linear issue IDs, Notion page URLs.`,
-    mcpServers: ['linear', 'notion', 'slack', 'gcse', 'memory'],
+    mcpServers: ['linear', 'notion', 'slack', 'gcse'],
   },
 ];

@@ -28,7 +28,7 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, Well-Architected doc references.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'gcp-curator',
@@ -55,7 +55,7 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'azure-curator',
@@ -82,7 +82,7 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
   {
     role: 'opentofu-engineer',
@@ -108,7 +108,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, \`plan\` summary.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'terragrunt-engineer',
@@ -133,7 +133,7 @@ What you do:
 3. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL, dependency graph.`,
-    mcpServers: ['github', 'linear', 'memory'],
+    mcpServers: ['github', 'linear'],
   },
   {
     role: 'landing-zone-curator',
@@ -160,6 +160,6 @@ What you do not do:
 2. Commit via the github MCP push_files tool.
 
 Report: file paths, GitHub PR URL.`,
-    mcpServers: ['github', 'memory'],
+    mcpServers: ['github'],
   },
 ];
