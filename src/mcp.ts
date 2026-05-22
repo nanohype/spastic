@@ -117,6 +117,53 @@ const REGISTRY: Record<string, McpServerDef> = {
   },
 };
 
+// ── MCP tunnel seam ─────────────────────────────────────────────────
+//
+// A private MCP server — one running inside an adopter's own network —
+// is reached by Claude through an MCP tunnel (the `mcp-tunnel` addon in
+// eks-gitops). The tunnel gives the server an ordinary https URL, so the
+// connector call is the same as for any public server. FAB_MCP_TUNNEL
+// registers such servers by name so roles can reference them and the
+// vault supplies their upstream auth, matched by URL.
+//
+// Format: comma-separated `name=url` pairs, e.g.
+//   FAB_MCP_TUNNEL="wiki=https://wiki.acme.tunnel.example/mcp,kb=https://kb.acme.tunnel.example/mcp"
+
+const TUNNEL_ENV = 'FAB_MCP_TUNNEL';
+
+/**
+ * Parse a FAB_MCP_TUNNEL spec into MCP server definitions. Malformed
+ * entries are skipped with a warning rather than failing the whole run.
+ */
+export function parseTunnelRegistry(spec: string | undefined): Record<string, McpServerDef> {
+  const registry: Record<string, McpServerDef> = {};
+  if (!spec) return registry;
+
+  for (const entry of spec.split(',')) {
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+    const eq = trimmed.indexOf('=');
+    const name = eq === -1 ? '' : trimmed.slice(0, eq).trim();
+    const url = eq === -1 ? '' : trimmed.slice(eq + 1).trim();
+    if (!name || !url) {
+      process.stderr.write(`[mcp] ignoring malformed ${TUNNEL_ENV} entry (expected name=url): ${trimmed}\n`);
+      continue;
+    }
+    registry[name] = {
+      name,
+      description: 'Private MCP server via MCP tunnel',
+      defaultUrl: url,
+      envOverride: '',
+    };
+  }
+  return registry;
+}
+
+/** The static registry plus any FAB_MCP_TUNNEL private servers. */
+function fullRegistry(): Record<string, McpServerDef> {
+  return { ...REGISTRY, ...parseTunnelRegistry(process.env[TUNNEL_ENV]) };
+}
+
 // ── Public API ──────────────────────────────────────────────────────
 
 /**
@@ -124,14 +171,15 @@ const REGISTRY: Record<string, McpServerDef> = {
  * Servers are always included — env vars override the default URL.
  */
 export function resolveMcpServers(serverNames: string[]): { servers: McpServer[]; tools: Tool[] } {
+  const registry = fullRegistry();
   const servers: McpServer[] = [];
   const tools: Tool[] = [];
 
   for (const name of serverNames) {
-    const def = REGISTRY[name];
+    const def = registry[name];
     if (!def) continue;
 
-    const url = process.env[def.envOverride] || def.defaultUrl;
+    const url = (def.envOverride && process.env[def.envOverride]) || def.defaultUrl;
 
     const headers = def.headers;
     servers.push({ type: 'url', name: def.name, url, ...(headers && { headers }) });
@@ -152,5 +200,5 @@ export function resolveMcpServers(serverNames: string[]): { servers: McpServer[]
  * Get the full registry for display (e.g., help text, config commands).
  */
 export function getRegistry(): Record<string, McpServerDef> {
-  return REGISTRY;
+  return fullRegistry();
 }
