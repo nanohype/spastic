@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { resolveMcpServers, getRegistry } from '../src/mcp.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { resolveMcpServers, getRegistry, parseTunnelRegistry } from '../src/mcp.js';
 
 describe('mcp', () => {
   it('getRegistry returns all servers', () => {
@@ -57,5 +57,47 @@ describe('mcp', () => {
     const { servers, tools } = resolveMcpServers([]);
     expect(servers).toHaveLength(0);
     expect(tools).toHaveLength(0);
+  });
+
+  describe('FAB_MCP_TUNNEL seam', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+      vi.restoreAllMocks();
+    });
+
+    it('parseTunnelRegistry returns empty for an unset spec', () => {
+      expect(parseTunnelRegistry(undefined)).toEqual({});
+      expect(parseTunnelRegistry('')).toEqual({});
+    });
+
+    it('parseTunnelRegistry parses comma-separated name=url pairs', () => {
+      const registry = parseTunnelRegistry('wiki=https://wiki.tnl.example/mcp,kb=https://kb.tnl.example/mcp');
+      expect(Object.keys(registry)).toEqual(['wiki', 'kb']);
+      expect(registry.wiki.defaultUrl).toBe('https://wiki.tnl.example/mcp');
+      expect(registry.kb.name).toBe('kb');
+      expect(registry.wiki.description).toMatch(/tunnel/i);
+    });
+
+    it('parseTunnelRegistry skips malformed entries', () => {
+      const stderr = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+      const registry = parseTunnelRegistry('ok=https://ok.tnl.example/mcp,no-equals,=https://noname.example,empty=');
+      expect(Object.keys(registry)).toEqual(['ok']);
+      expect(stderr).toHaveBeenCalled();
+    });
+
+    it('resolveMcpServers resolves a tunnel server registered via FAB_MCP_TUNNEL', () => {
+      vi.stubEnv('FAB_MCP_TUNNEL', 'wiki=https://wiki.tnl.example/mcp');
+      const { servers, tools } = resolveMcpServers(['wiki']);
+      expect(servers).toHaveLength(1);
+      expect(servers[0]).toMatchObject({ type: 'url', name: 'wiki', url: 'https://wiki.tnl.example/mcp' });
+      expect(tools[0]).toMatchObject({ type: 'mcp_toolset', mcp_server_name: 'wiki' });
+    });
+
+    it('getRegistry includes tunnel servers alongside the static registry', () => {
+      vi.stubEnv('FAB_MCP_TUNNEL', 'wiki=https://wiki.tnl.example/mcp');
+      const registry = getRegistry();
+      expect(Object.keys(registry)).toContain('github');
+      expect(Object.keys(registry)).toContain('wiki');
+    });
   });
 });
