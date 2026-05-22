@@ -72,6 +72,8 @@ npm install @anthropic-ai/claude-agent-sdk
 fab workflow feature-build '<intake-json>'
 ```
 
+Set `FAB_INFERENCE=bedrock` to serve inference from AWS Bedrock instead of the Anthropic API — see [`docs/transports.md`](docs/transports.md#inference-backend).
+
 ## Claude CLI transport (subscription-billable)
 
 If you want fab to bill against your existing Claude Code subscription instead of the API, drive the `claude` CLI as a subprocess per role session:

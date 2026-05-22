@@ -3,6 +3,7 @@ import type { AgentEvent, FabState, TeamRole, UserEvent } from '../types.js';
 import { TEAM } from '../team.js';
 import { buildSystemPrompt } from '../prompts.js';
 import { loadState } from '../state.js';
+import { inferenceEnv, resolveInferenceBackend, resolveModelId, type InferenceBackend } from '../inference.js';
 import { isTerminal, textOf, translateSdkMessage } from './sdk-events.js';
 
 /**
@@ -29,7 +30,9 @@ import { isTerminal, textOf, translateSdkMessage } from './sdk-events.js';
  *     events are not emitted by the sdk runtime.
  *
  * Picked by setting `FAB_RUNTIME=sdk` at startup. See
- * `src/runtimes/index.ts` for the selection logic.
+ * `src/runtimes/index.ts` for the selection logic. The inference backend
+ * is independent — `FAB_INFERENCE=bedrock` routes inference through AWS
+ * Bedrock (see `src/inference.ts`); the default is the Anthropic API.
  */
 export class SdkRuntime implements AgentRuntime {
   async runRoleSession(role: TeamRole, message: string, options?: RunRoleOptions): Promise<AgentSession> {
@@ -41,8 +44,11 @@ export class SdkRuntime implements AgentRuntime {
     const state = await loadState();
     const systemPrompt = buildSystemPrompt(member, state);
 
+    const backend = resolveInferenceBackend();
+    const model = resolveModelId(member.model, backend);
+
     const sdk = await loadSdk();
-    const session = new SdkAgentSession(sdk, member.model, systemPrompt, options);
+    const session = new SdkAgentSession(sdk, model, systemPrompt, options, backend);
     await session.start(message);
     return session;
   }
@@ -89,6 +95,7 @@ class SdkAgentSession implements AgentSession {
     private readonly model: string,
     private readonly systemPrompt: string,
     private readonly options?: RunRoleOptions,
+    private readonly backend: InferenceBackend = 'api',
   ) {}
 
   get id(): string {
@@ -104,12 +111,14 @@ class SdkAgentSession implements AgentSession {
       parent_tool_use_id: null,
     });
 
+    const backendEnv = inferenceEnv(this.backend);
     this.sdkQuery = this.sdk.query({
       prompt: inputs,
       options: {
         model: this.model,
         systemPrompt: this.systemPrompt,
         permissionMode: 'bypassPermissions',
+        ...(backendEnv && { env: { ...process.env, ...backendEnv } }),
         // Resources hint: the SDK uses cwd for filesystem-bound tools;
         // workflows.ts pre-creates branches on the cloud-mounted repos
         // for managed-agents mode. The sdk runtime operates against the

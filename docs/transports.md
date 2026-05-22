@@ -68,6 +68,26 @@ Claude CLI runtime accepts these env vars on top of the standard fab set:
 | `FAB_CLAUDE_EXTRA_ARGS`  | unset                  | Space-separated extra flags appended to every spawn (escape hatch for power users)                                                                                               |
 | `FAB_CLAUDE_MCP_DIR`     | `os.tmpdir()`          | Directory for per-session MCP config JSON files                                                                                                                                  |
 
+## Inference backend
+
+The `sdk` runtime hosts the agent loop in fab's own process, so it can point the underlying Agent SDK at a non-Anthropic inference backend. `FAB_INFERENCE` selects it — orthogonal to `FAB_RUNTIME`, and read only by the `sdk` runtime. `managed-agents` always infers on Anthropic infrastructure; `claude-cli` inherits the user's Claude Code configuration.
+
+| `FAB_INFERENCE` | Backend       | Notes                                                                                                                              |
+| --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `api` (default) | Anthropic API | Billed per token against `ANTHROPIC_API_KEY`.                                                                                      |
+| `bedrock`       | AWS Bedrock   | Inference served from the adopter's AWS account. The agent loop still runs in fab's process; no inference token reaches Anthropic. |
+
+```sh
+export FAB_RUNTIME=sdk
+export FAB_INFERENCE=bedrock
+export AWS_REGION=us-east-1
+fab workflow feature-build '<intake-json>'
+```
+
+Under `bedrock` the `sdk` runtime sets `CLAUDE_CODE_USE_BEDROCK` for the Agent SDK and resolves AWS credentials through the standard chain — environment variables, shared config, IRSA, or instance role. Role model ids map to their Bedrock equivalents automatically (`claude-sonnet-4-6` → `anthropic.claude-sonnet-4-6`); a role pointed at a full Bedrock id, including a cross-region inference-profile id, passes through untouched. The AWS account must have [Bedrock model access](https://console.aws.amazon.com/bedrock/home#/modelaccess) granted for the Claude models in use.
+
+The advisor escalation (`consult_advisor`) calls the Anthropic API directly regardless of `FAB_INFERENCE`.
+
 ## What's the same across all three
 
 - **Roster.** All three transports run the same roles from `src/team/`.
